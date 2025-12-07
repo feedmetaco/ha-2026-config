@@ -1,6 +1,6 @@
 # Bambu Lab Power Estimation
 # Created by Agent 3 - December 7, 2025
-# Enhanced power estimation with all printer states
+# Refactored with REAL entities (h2s_printer_*)
 
 template:
   - sensor:
@@ -10,20 +10,20 @@ template:
         unit_of_measurement: "W"
         state_class: measurement
         state: >
-          {% set status = states('sensor.print_status') | lower %}
-          {% set stage = states('sensor.stage') | lower %}
-          {% set progress = states('sensor.print_progress') | int(0) %}
-          {% set bed_temp = states('sensor.bed_temp') | float(0) %}
-          {% set nozzle_temp = states('sensor.nozzle_temp') | float(0) %}
-          
+          {% set status = states('sensor.h2s_printer_print_status') | lower %}
+          {% set stage = states('sensor.h2s_printer_current_stage') | lower %}
+          {% set progress = states('sensor.h2s_printer_print_progress') | int(0) %}
+          {% set bed_temp = states('sensor.h2s_printer_bed_temperature') | float(0) %}
+          {% set nozzle_temp = states('sensor.h2s_printer_nozzle_temperature') | float(0) %}
+
           {# Offline #}
           {% if status in ['offline', 'unavailable', 'unknown'] %}
             0
-          
+
           {# Idle/Standby #}
           {% elif status in ['idle', 'finish'] %}
             5
-          
+
           {# Heating phases - high power #}
           {% elif 'heat' in stage or 'leveling' in stage %}
             {% if bed_temp < 50 and nozzle_temp < 150 %}
@@ -33,7 +33,7 @@ template:
             {% else %}
               220
             {% endif %}
-          
+
           {# Active printing - variable by progress #}
           {% elif status in ['running', 'printing'] %}
             {% if progress < 5 %}
@@ -47,32 +47,32 @@ template:
             {% else %}
               130
             {% endif %}
-          
+
           {# Paused - maintaining temps #}
           {% elif status in ['pause', 'paused'] %}
             75
-          
+
           {# Failed/Error - minimal #}
           {% elif status in ['failed', 'error'] %}
             10
-          
+
           {# Default #}
           {% else %}
             5
           {% endif %}
         attributes:
-          print_status: "{{ states('sensor.print_status') }}"
-          stage: "{{ states('sensor.stage') }}"
-          progress: "{{ states('sensor.print_progress') }}%"
-          bed_temp: "{{ states('sensor.bed_temp') }}°C"
-          nozzle_temp: "{{ states('sensor.nozzle_temp') }}°C"
+          print_status: "{{ states('sensor.h2s_printer_print_status') }}"
+          stage: "{{ states('sensor.h2s_printer_current_stage') }}"
+          progress: "{{ states('sensor.h2s_printer_print_progress') }}%"
+          bed_temp: "{{ states('sensor.h2s_printer_bed_temperature') }}°C"
+          nozzle_temp: "{{ states('sensor.h2s_printer_nozzle_temperature') }}°C"
           power_state: >
-            {% set status = states('sensor.print_status') | lower %}
+            {% set status = states('sensor.h2s_printer_print_status') | lower %}
             {% if status in ['offline', 'unavailable'] %}
               Offline
             {% elif status in ['idle', 'finish'] %}
               Standby (5W)
-            {% elif 'heat' in states('sensor.stage') | lower %}
+            {% elif 'heat' in states('sensor.h2s_printer_current_stage') | lower %}
               Heating (220-280W)
             {% elif status in ['running', 'printing'] %}
               Printing (130-220W)
@@ -82,11 +82,11 @@ template:
               Idle (5W)
             {% endif %}
 
-  # History Stats for Runtime Tracking
+  # History Stats for Runtime Tracking - FIXED ENTITIES
   - platform: history_stats
     name: "Bambu Lab Printing Today"
     unique_id: bambu_lab_printing_today
-    entity_id: sensor.print_status
+    entity_id: sensor.h2s_printer_print_status
     state: "running"
     type: time
     start: "{{ now().replace(hour=0, minute=0, second=0, microsecond=0) }}"
@@ -95,7 +95,7 @@ template:
   - platform: history_stats
     name: "Bambu Lab Printing This Week"
     unique_id: bambu_lab_printing_week
-    entity_id: sensor.print_status
+    entity_id: sensor.h2s_printer_print_status
     state: "running"
     type: time
     start: "{{ as_timestamp(now().replace(hour=0, minute=0, second=0, microsecond=0)) - now().weekday() * 86400 }}"
@@ -104,9 +104,8 @@ template:
   - platform: history_stats
     name: "Bambu Lab Printing This Month"
     unique_id: bambu_lab_printing_month
-    entity_id: sensor.print_status
+    entity_id: sensor.h2s_printer_print_status
     state: "running"
     type: time
     start: "{{ now().replace(day=1, hour=0, minute=0, second=0, microsecond=0) }}"
     end: "{{ now() }}"
-
