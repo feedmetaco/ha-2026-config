@@ -1,0 +1,56 @@
+# UniFi Port Monitoring & Aggregation
+# Created by Agent 6 - December 7, 2025
+
+template:
+  - sensor:
+      # Total PoE Power Across All Switches
+      - name: "UniFi Total PoE Power Used"
+        unique_id: unifi_total_poe_power_used
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set switches = [
+            'sensor.ac_sw_core_poe_used',
+            'sensor.aa_gw_udmp_se_poe_used',
+            'sensor.ad_sw_flex_2_5_desk_poe_used',
+            'sensor.ae_sw_officeprinter_poe_4_poe_used',
+            'sensor.ai_sw_livingroom_poe_4_poe_used',
+            'sensor.ak_backyard_switch_poe_used',
+            'sensor.usw_ultra_60w_poe_used'
+          ] %}
+          {{ switches | map('states') | map('float', 0) | sum | round(1) }}
+        attributes:
+          total_budget: 1180
+          utilization_percent: >
+            {% set used = states('sensor.unifi_total_poe_power_used') | float(0) %}
+            {{ ((used / 1180) * 100) | round(1) }}
+
+      # Per-Switch PoE Utilization %
+      - name: "AC SW CORE PoE Utilization"
+        unique_id: ac_sw_core_poe_utilization
+        unit_of_measurement: "%"
+        state: >
+          {% set used = states('sensor.ac_sw_core_poe_used') | float(0) %}
+          {{ ((used / 720) * 100) | round(1) }}
+
+      - name: "Living Room Switch PoE Utilization"
+        unique_id: living_room_switch_poe_utilization
+        unit_of_measurement: "%"
+        state: >
+          {% set used = states('sensor.ai_sw_livingroom_poe_4_poe_used') | float(0) %}
+          {{ ((used / 60) * 100) | round(1) }}
+
+  - binary_sensor:
+      # PoE Budget Warning (>80% utilization)
+      - name: "UniFi PoE Budget Warning"
+        unique_id: unifi_poe_budget_warning
+        device_class: problem
+        state: >
+          {% set used = states('sensor.unifi_total_poe_power_used') | float(0) %}
+          {{ (used / 1180) > 0.8 }}
+        attributes:
+          used_watts: "{{ states('sensor.unifi_total_poe_power_used') }}"
+          total_budget: "1180 W"
+          percent_used: "{{ ((states('sensor.unifi_total_poe_power_used') | float(0) / 1180) * 100) | round(1) }}%"
+

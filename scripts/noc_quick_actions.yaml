@@ -1,0 +1,169 @@
+# NOC Quick Action Scripts
+# Created by Agent 5 - December 7, 2025
+# Safe controls with confirmations and audit logging
+
+# Reboot Gateway (UDMP-SE)
+reboot_gateway:
+  alias: "Reboot UDMP-SE Gateway"
+  mode: single
+  max_exceeded: silent
+  sequence:
+    - service: logbook.log
+      data:
+        name: "NOC Action"
+        message: "Gateway reboot initiated by {{ user }}"
+        entity_id: switch.zz_pwr_pdu_outlet_12
+    - service: persistent_notification.create
+      data:
+        title: "Gateway Reboot Started"
+        message: "UDMP-SE will be down for ~3 minutes. Network will be unavailable."
+    - service: button.press
+      target:
+        entity_id: button.aa_gw_udmp_se_restart
+    - delay:
+        seconds: 10
+    - service: persistent_notification.create
+      data:
+        title: "Gateway Reboot"
+        message: "Reboot command sent. Please wait 3 minutes for recovery."
+
+# Reboot Core Switch
+reboot_core_switch:
+  alias: "Reboot Core Switch"
+  mode: single
+  max_exceeded: silent
+  sequence:
+    - service: logbook.log
+      data:
+        name: "NOC Action"
+        message: "Core switch reboot initiated"
+        entity_id: switch.zz_pwr_pdu_outlet_7
+    - service: persistent_notification.create
+      data:
+        title: "Core Switch Reboot"
+        message: "AC_SW_CORE rebooting. Some network segments will be down."
+    - service: button.press
+      target:
+        entity_id: button.ac_sw_core_restart
+    - delay:
+        seconds: 10
+    - service: persistent_notification.create
+      data:
+        title: "Core Switch Reboot"
+        message: "Reboot command sent. Recovery time ~2 minutes."
+
+# Reboot All Network Stack (CRITICAL)
+reboot_all_network_stack:
+  alias: "Reboot Entire Network Stack"
+  mode: single
+  max_exceeded: silent
+  sequence:
+    - service: logbook.log
+      data:
+        name: "CRITICAL NOC Action"
+        message: "FULL NETWORK STACK REBOOT initiated by {{ user }}"
+    - service: persistent_notification.create
+      data:
+        title: "⚠️ CRITICAL: Network Stack Reboot"
+        message: "Rebooting all network devices. Network will be down 5-10 minutes."
+    # Reboot switches first
+    - service: button.press
+      target:
+        entity_id:
+          - button.ac_sw_core_restart
+          - button.ai_sw_livingroom_poe_4_restart
+          - button.ae_sw_officeprinter_poe_4_restart
+    - delay:
+        seconds: 30
+    # Then reboot gateway
+    - service: button.press
+      target:
+        entity_id: button.aa_gw_udmp_se_restart
+    - service: persistent_notification.create
+      data:
+        title: "Network Stack Rebooting"
+        message: "All devices rebooting. Estimated recovery: 10 minutes."
+
+# Restart DNS Services
+restart_dns_services:
+  alias: "Restart DNS Services"
+  mode: single
+  sequence:
+    - service: logbook.log
+      data:
+        name: "NOC Action"
+        message: "DNS services restart initiated"
+    # Toggle AdGuard protection (restart)
+    - service: switch.turn_off
+      target:
+        entity_id: switch.adguard_home_protection
+    - delay:
+        seconds: 3
+    - service: switch.turn_on
+      target:
+        entity_id: switch.adguard_home_protection
+    # Toggle Pi-hole
+    - service: switch.turn_off
+      target:
+        entity_id: switch.pi_hole
+    - delay:
+        seconds: 3
+    - service: switch.turn_on
+      target:
+        entity_id: switch.pi_hole
+    - service: persistent_notification.create
+      data:
+        title: "DNS Services Restarted"
+        message: "AdGuard and Pi-hole have been cycled."
+
+# Bounce Network Port
+bounce_network_port:
+  alias: "Bounce Network Port"
+  mode: queued
+  max: 5
+  fields:
+    port_entity:
+      description: "Port entity ID to bounce"
+      example: "switch.ac_sw_core_port_43_poe"
+  sequence:
+    - service: logbook.log
+      data:
+        name: "NOC Action"
+        message: "Port bounce: {{ port_entity }}"
+    - service: switch.turn_off
+      target:
+        entity_id: "{{ port_entity }}"
+    - delay:
+        seconds: 5
+    - service: switch.turn_on
+      target:
+        entity_id: "{{ port_entity }}"
+    - service: persistent_notification.create
+      data:
+        title: "Port Bounced"
+        message: "{{ port_entity }} has been cycled (5s down)"
+
+# Toggle PoE on Port
+toggle_port_poe:
+  alias: "Toggle PoE on Port"
+  mode: queued
+  max: 10
+  fields:
+    poe_entity:
+      description: "PoE switch entity ID"
+      example: "switch.ac_sw_core_port_43_poe"
+  sequence:
+    - service: logbook.log
+      data:
+        name: "NOC Action"
+        message: "PoE toggle: {{ poe_entity }}"
+    - service: switch.toggle
+      target:
+        entity_id: "{{ poe_entity }}"
+    - delay:
+        seconds: 2
+    - service: persistent_notification.create
+      data:
+        title: "PoE Toggled"
+        message: "{{ poe_entity }} state changed"
+

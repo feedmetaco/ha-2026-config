@@ -1,0 +1,61 @@
+# UniFi PoE Energy Integration Sensors
+# These sensors integrate PoE power over time to calculate total energy consumption
+# Using the integration platform for accurate energy tracking
+
+sensor:
+  - platform: integration
+    source: sensor.ac_sw_core_poe_used
+    name: AC_SW_CORE PoE Energy
+    unique_id: ac_sw_core_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.aa_gw_udmp_se_poe_used
+    name: AA_GW_UDMP_SE PoE Energy
+    unique_id: aa_gw_udmp_se_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ad_sw_flex_2_5_desk_poe_used
+    name: AD_SW_FLEX_2_5_DESK PoE Energy
+    unique_id: ad_sw_flex_2_5_desk_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ae_sw_officeprinter_poe_4_poe_used
+    name: AE_SW_OFFICEPRINTER_POE_4 PoE Energy
+    unique_id: ae_sw_officeprinter_poe_4_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ai_sw_livingroom_poe_4_poe_used
+    name: AI_SW_LIVINGROOM_POE_4 PoE Energy
+    unique_id: ai_sw_livingroom_poe_4_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ak_backyard_switch_poe_used
+    name: AK_BACKYARD_SWITCH PoE Energy
+    unique_id: ak_backyard_switch_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.usw_ultra_60w_poe_used
+    name: USW_ULTRA_60W PoE Energy
+    unique_id: usw_ultra_60w_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+

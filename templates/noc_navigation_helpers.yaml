@@ -1,0 +1,53 @@
+# NOC V3 Navigation Helpers
+# Created by Agent 4 - December 7, 2025
+
+input_select:
+  noc_navigation_level:
+    name: "NOC Navigation Level"
+    options:
+      - "overview"
+      - "section:internet"
+      - "section:dns"
+      - "section:unifi"
+      - "section:power"
+      - "device:gateway"
+      - "device:core_switch"
+      - "device:unvr"
+      - "device:nas"
+    initial: "overview"
+    icon: mdi:navigation
+
+input_text:
+  noc_selected_device:
+    name: "NOC Selected Device"
+    initial: ""
+    icon: mdi:devices
+
+template:
+  - sensor:
+      # System Health Score (0-100)
+      - name: "NOC System Health Score"
+        unique_id: noc_system_health_score
+        unit_of_measurement: "%"
+        state: >
+          {% set network_up = states('sensor.unifi_device_availability') | float(0) %}
+          {% set internet_up = states('sensor.network_uptime_percent') | float(100) %}
+          {% set power_ok = 1 if states('sensor.total_power_consumption') | float(0) > 0 else 0 %}
+          {% set dns_ok = 1 if is_state('binary_sensor.dns_filtering_health', 'on') else 0.5 %}
+          
+          {% set health = (network_up * 0.3) + (internet_up * 0.3) + (power_ok * 100 * 0.2) + (dns_ok * 100 * 0.2) %}
+          {{ health | round(0) }}
+        attributes:
+          network_health: "{{ states('sensor.unifi_device_availability') }}%"
+          internet_health: "{{ states('sensor.network_uptime_percent') }}%"
+          power_status: "{{ 'OK' if states('sensor.total_power_consumption') | float(0) > 0 else 'WARNING' }}"
+          dns_status: "{{ 'Active' if is_state('binary_sensor.dns_filtering_health', 'on') else 'Partial' }}"
+          rating: >
+            {% set score = states('sensor.noc_system_health_score') | int(0) %}
+            {% if score >= 95 %}Excellent
+            {% elif score >= 85 %}Good
+            {% elif score >= 70 %}Fair
+            {% elif score >= 50 %}Poor
+            {% else %}Critical
+            {% endif %}
+

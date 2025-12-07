@@ -1,0 +1,1796 @@
+- id: '1716180016142'
+  alias: Motion = Hallway lights on (afterSunSet)
+  description: '[DELETE] - Replaced by "Hallway Motion & Lights (Consolidated)" at
+    end of file. Original description: after sunset, if motion is detected hallway
+    lights are on for 5 min'
+  triggers:
+  - type: motion
+    device_id: 96dea59498aeda8ffcf65e55e51e984f
+    entity_id: f1bf004c740dda67f120e9b712d00a33
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  actions:
+  - parallel:
+    - data:
+        title: "❌\U0001F315\U0001F315Home Assistant_PROD"
+        message: Hallway lights on for 5 min
+      action: notify.mobile_app_loittafuni
+    - alias: Turn on 3 Lights together
+      parallel:
+      - type: turn_on
+        device_id: b3f2c54781202b41b53bfa2681379217
+        entity_id: e3b307d53c7876f1cb5d6b897cccab4e
+        domain: light
+        brightness_pct: 50
+      - type: turn_on
+        device_id: 51ccbfc8d3d48849910a4246db678e3b
+        entity_id: 07907b8cd765ef20a4eb5c1cd8eed9b3
+        domain: light
+        brightness_pct: 50
+      - type: turn_on
+        device_id: 4bbc3fdb8c8d4174be4be4ed1c008f7b
+        entity_id: 38a617f37a6876ba9f429f4e7e6929ba
+        domain: light
+        brightness_pct: 50
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - alias: Turn Off 3 Lights together
+    parallel:
+    - type: turn_off
+      device_id: b3f2c54781202b41b53bfa2681379217
+      entity_id: e3b307d53c7876f1cb5d6b897cccab4e
+      domain: light
+    - type: turn_off
+      device_id: 51ccbfc8d3d48849910a4246db678e3b
+      entity_id: 07907b8cd765ef20a4eb5c1cd8eed9b3
+      domain: light
+    - type: turn_off
+      device_id: 4bbc3fdb8c8d4174be4be4ed1c008f7b
+      entity_id: 38a617f37a6876ba9f429f4e7e6929ba
+      domain: light
+  mode: single
+- id: '1716231960525'
+  alias: Hallway Motion
+  description: '[DELETE] - Replaced by "Hallway Motion & Lights (Consolidated)" at
+    end of file. Original description: upstairs hallway motion'
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 96dea59498aeda8ffcf65e55e51e984f
+    entity_id: f1bf004c740dda67f120e9b712d00a33
+    domain: binary_sensor
+    for:
+      seconds: 5
+  condition: []
+  action:
+  - parallel:
+    - service: notify.mobile_app_loittafuni
+      data:
+        message: Motion detected in Upstairs Hallway !!
+        title: "\U0001F6D1\U0001F6D1Home Assistant_PROD \U0001F6D1\U0001F6D1"
+    - service: notify.mobile_app_ipad
+      data:
+        message: Motion detected in Upstairs Hallway !!
+        title: "\U0001F6D1\U0001F6D1Home Assistant_PROD \U0001F6D1\U0001F6D1"
+  mode: single
+- id: '1716232885059'
+  alias: 'Check Tesla Charging status '
+  description: '[DELETE] - Replaced by "Check Tesla Charging Status" automation at
+    line 697. Original description: at 9:00 PM check charging state'
+  trigger:
+  - platform: time
+    at: '21:05:00'
+  condition:
+  - condition: or
+    conditions:
+    - type: is_not_plugged_in
+      condition: device
+      device_id: 0d323f549ef8bf888ac9c2e84b7280a7
+      entity_id: 58b5f074602c28fd339bad60554da3a7
+      domain: binary_sensor
+  action:
+  - service: notify.mobile_app_loittafuni
+    metadata: {}
+    data:
+      message: "\U0001F534 Tesla is not Charging \U0001F697 ⚠"
+      title: Tesla Charge Check
+  mode: single
+- id: '1716233781677'
+  alias: Kitchen on for Motion
+  description: '[DELETE] - Replaced by "Kitchen Motion Light Control (Dark Hours)"
+    automation at line 931'
+  trigger:
+  - type: motion
+    platform: device
+    device_id: e2a6450e1ea154d6b0fc672075408eb9
+    entity_id: 9d6ea45979579a194b867e85d555d80d
+    domain: binary_sensor
+  condition:
+  - condition: time
+    after: '22:00:00'
+    before: 06:00:00
+    weekday:
+    - sat
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - parallel:
+    - service: notify.mobile_app_loittafuni
+      metadata: {}
+      data:
+        message: "\U0001F6D1Motioin in kitchen - Lights on"
+        title: HA deteced motion in kitchen
+    - type: turn_on
+      device_id: 8bcbf818fe56e5d43531aa510065ff35
+      entity_id: 08f4ef043e8cd87397a71d3b1f8704da
+      domain: light
+      brightness_pct: 75
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - if:
+    - type: is_no_motion
+      condition: device
+      device_id: e2a6450e1ea154d6b0fc672075408eb9
+      entity_id: 9d6ea45979579a194b867e85d555d80d
+      domain: binary_sensor
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    then:
+    - type: turn_off
+      device_id: 8bcbf818fe56e5d43531aa510065ff35
+      entity_id: 08f4ef043e8cd87397a71d3b1f8704da
+      domain: light
+  mode: single
+- id: '1716235970973'
+  alias: Low battery level detection for all battery sensors
+  description: ''
+  use_blueprint:
+    path: josephquigley/jq-home-assistant-low-battery-blueprint-v1.yaml
+    input:
+      actions:
+      - service: notify.mobile_app_loittafuni
+        metadata: {}
+        data:
+          title: "\U0001F6D1\U0001F6D1Low Battery "
+          message: HA  Automation for Low Battery Check Ran
+- id: '1733866849538'
+  alias: Aqara sensor test
+  description: '[DELETE] - Test automation replaced by "Stairwell Motion Alert - Aqara"
+    at line 886'
+  triggers:
+  - type: motion
+    device_id: c98caea7dca4a0c38b4888d55fd3f8fe
+    entity_id: e49997ecc71d028fbc2ea13663a36f98
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - sequence:
+    - action: notify.mobile_app_loittafuni
+      metadata: {}
+      data:
+        message: Motion in stairs
+        title: "\U0001F53B Aqara Sensor Test \U0001F53B"
+  mode: single
+- id: '1737064703793'
+  alias: Package at the Front Door
+  description: '[DELETE] - Replaced by "Package at the Front Door" automation at line
+    1021'
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    webhook_id: package-test2-1zJOOO_dS9mEft_nMHm72VIw
+  conditions: []
+  actions:
+  - action: notify.mobile_app_loittafuni
+    metadata: {}
+    data:
+      message: Webhook - Package
+      title: "\U0001F381 \U0001F381 \U0001F381  - Package at the Front Door \U0001F381 "
+  mode: single
+- id: '1737661568917'
+  alias: ISP Down
+  description: '[DELETE] - Replaced by "ISP Down" automation at line 907'
+  triggers:
+  - type: not_connected
+    device_id: 4f9dd5ff094cb40497287f1f5b66dc9d
+    entity_id: d149a9ab4f0df99a8d6905ed12cf2d02
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions: []
+  actions:
+  - action: notify.mobile_app_loittafuni
+    metadata: {}
+    data:
+      title: '❌❌❌ ISP Down ❌❌❌ '
+      message: samisalehin.myddns.me disconnected
+  mode: single
+- id: '1744912880612'
+  alias: Automation_Ring_armed_V2
+  description: 'V2: Enhanced with Emi-check and skip notifications'
+  triggers:
+  - trigger: zone
+    entity_id: device_tracker.loittafuni
+    zone: zone.home
+    event: leave
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: device_tracker.rajkonna
+        state: home
+      sequence:
+      - action: notify.mobile_app_loittafuni
+        data:
+          title: ⏸️ Ring Alarm - Skipped
+          message: 'Alarm NOT armed because Emi is home.
+
+
+            • Time: {{ now().strftime(''%I:%M %p'') }}
+
+            • Emi location: {{ states(''device_tracker.rajkonna'') }}'
+    - conditions:
+      - condition: state
+        entity_id: device_tracker.rajkonna
+        state: not_home
+      sequence:
+      - action: alarm_control_panel.alarm_arm_away
+        metadata: {}
+        data: {}
+        target:
+          entity_id: alarm_control_panel.ring_control_panel
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 30
+          milliseconds: 0
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: alarm_control_panel.ring_control_panel
+            state: armed_away
+          sequence:
+          - action: notify.mobile_app_loittafuni
+            metadata: {}
+            data:
+              title: ✅ Ring
+              message: Ring Alarm set to Away
+        default:
+        - action: notify.mobile_app_loittafuni
+          metadata: {}
+          data:
+            title: ❌ Automation Failed
+            message: Automation_Ring_armed Failed
+            data: {}
+  mode: single
+- id: '1744915749652'
+  alias: Automation_Ring_Disarmed
+  description: '[DELETE] - Replaced by "Automation_Ring_Disarmed_V2" at line 386.
+    Original description: Disarms Ring alarm when phone enters home zone and system
+    is armed away'
+  triggers:
+  - entity_id: device_tracker.loittafuni
+    zone: zone.home
+    event: enter
+    trigger: zone
+  - trigger: state
+    entity_id:
+    - person.z_ss_home
+    - device_tracker.loittafuni
+    from: not_home
+    to: home
+    attribute: device_trackers
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr(''sensor.ring_control_panel_info'', ''alarmState'')
+      == ''armed_away'' }}'
+  actions:
+  - data:
+      name: Ring Alarm Automation
+      message: 'Trigger: Phone entered home while alarm is armed_away. Disarm initiated.'
+    action: logbook.log
+  - data:
+      code: '3325'
+    target:
+      device_id: 47243ef374f0fb6a7d805231350d7158
+    action: alarm_control_panel.alarm_disarm
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: alarm_control_panel.ring_control_panel
+        state: disarmed
+      sequence:
+      - data:
+          name: Ring Alarm Automation
+          message: ✅ Alarm disarmed successfully after phone returned home.
+        action: logbook.log
+      - data:
+          title: ✅ Ring Alarm Disarmed
+          message: 'Ring Alarm disarmed at {{ now().strftime(''%I:%M %p on %A, %b
+            %d'') }}. Triggered by: loittafuni entering home zone.
+
+            '
+        action: notify.mobile_app_loittafuni
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: alarm_control_panel.ring_control_panel
+          state: disarmed
+      sequence:
+      - data:
+          name: Ring Alarm Automation
+          message: ❌ Failed to disarm alarm after 30s delay.
+        action: logbook.log
+      - data:
+          title: ❌ Ring Alarm Disarm Failed
+          message: 'Ring Alarm is still armed after 30 seconds. - Phone location:
+            {{ states(''device_tracker.loittafuni'') }} - Alarm state: {{ state_attr(''sensor.ring_control_panel_info'',
+            ''alarmState'') }} - Time: {{ now().strftime(''%I:%M %p on %A, %b %d'')
+            }}
+
+            '
+        action: notify.mobile_app_loittafuni
+  trace:
+    stored_traces: 10
+  mode: single
+- id: '1744915749653'
+  alias: Automation_Ring_Disarmed_V2
+  description: 'V2: Enhanced Ring alarm disarm with retry logic, proper wait templates,
+    location stability checks, and detailed status tracking'
+  triggers:
+  - entity_id: device_tracker.loittafuni
+    zone: zone.home
+    event: enter
+    trigger: zone
+  conditions:
+  - condition: state
+    entity_id: alarm_control_panel.ring_control_panel
+    state: armed_away
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: device_tracker.rajkonna
+      state: home
+  actions:
+  - data:
+      name: Ring Alarm Automation V2
+      message: 'Trigger: device_tracker.loittafuni entered home zone. Alarm state:
+        {{ states(''alarm_control_panel.ring_control_panel'') }}. Checking location
+        stability before disarming.'
+    action: logbook.log
+  - alias: Wait for location stability (5 seconds)
+    delay:
+      seconds: 5
+  - alias: Verify still home after stability check
+    condition: state
+    entity_id: device_tracker.loittafuni
+    state: home
+  - alias: Verify alarm still armed_away
+    condition: state
+    entity_id: alarm_control_panel.ring_control_panel
+    state: armed_away
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: device_tracker.rajkonna
+        state: home
+      sequence:
+      - data:
+          name: Ring Alarm Automation V2
+          message: 'Automation cancelled: Emi arrived home during stability check. Alarm
+            state: {{ states(''alarm_control_panel.ring_control_panel'') }}'
+        action: logbook.log
+      - action: notify.mobile_app_loittafuni
+        data:
+          title: ⏸️ Ring Alarm - Skipped
+          message: 'Alarm NOT disarmed because Emi is home.
+
+
+            • Time: {{ now().strftime(''%I:%M %p'') }}
+
+            • Emi location: {{ states(''device_tracker.rajkonna'') }}
+
+            • Alarm state: {{ states(''alarm_control_panel.ring_control_panel'') }}'
+    - conditions:
+      - condition: state
+        entity_id: device_tracker.loittafuni
+        state: home
+      - condition: state
+        entity_id: alarm_control_panel.ring_control_panel
+        state: armed_away
+      sequence:
+      - data:
+          name: Ring Alarm Automation V2
+          message: 'Location stable. Initiating disarm sequence. Alarm state: {{ states(''alarm_control_panel.ring_control_panel'')
+            }}'
+        action: logbook.log
+      - variables:
+          max_attempts: 3
+          attempt: 1
+          disarm_successful: false
+      - repeat:
+          while:
+          - condition: template
+            value_template: '{{ attempt <= max_attempts and not disarm_successful
+              }}'
+          sequence:
+          - alias: Verify still home before each attempt
+            condition: state
+            entity_id: device_tracker.loittafuni
+            state: home
+          - alias: Verify alarm still needs disarming
+            condition: state
+            entity_id: alarm_control_panel.ring_control_panel
+            state: armed_away
+          - data:
+              name: Ring Alarm Automation V2
+              message: 'Disarm attempt {{ attempt }} of {{ max_attempts }}. Location:
+                {{ states(''device_tracker.loittafuni'') }}'
+            action: logbook.log
+          - data:
+              code: '3325'
+            target:
+              device_id: 47243ef374f0fb6a7d805231350d7158
+            action: alarm_control_panel.alarm_disarm
+          - alias: Wait for disarm to complete (max 30 seconds)
+            wait_template: '{{ is_state(''alarm_control_panel.ring_control_panel'',
+              ''disarmed'') }}'
+            timeout: 00:00:30
+            continue_on_timeout: true
+          - choose:
+            - conditions:
+              - condition: state
+                entity_id: alarm_control_panel.ring_control_panel
+                state: disarmed
+              sequence:
+              - variables:
+                  disarm_successful: true
+              - data:
+                  name: Ring Alarm Automation V2
+                  message: ✅ Alarm disarmed successfully on attempt {{ attempt }}
+                action: logbook.log
+            default:
+            - data:
+                name: Ring Alarm Automation V2
+                message: '⚠️ Attempt {{ attempt }} failed. Alarm state: {{ states(''alarm_control_panel.ring_control_panel'')
+                  }}, Location: {{ states(''device_tracker.loittafuni'') }}'
+              action: logbook.log
+            - variables:
+                attempt: '{{ attempt + 1 }}'
+            - condition: template
+              value_template: '{{ attempt <= max_attempts }}'
+            - delay:
+                seconds: 3
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ disarm_successful }}'
+          sequence:
+          - data:
+              title: ✅ Ring Alarm Disarmed
+              message: 'Ring Alarm successfully disarmed at {{ now().strftime(''%I:%M
+                %p on %A, %b %d'') }}.
+
+
+                • Triggered by: loittafuni entering home zone
+
+                • Attempts required: {{ attempt }}
+
+                • Final status: {{ states(''alarm_control_panel.ring_control_panel'')
+                }}'
+            action: notify.mobile_app_loittafuni
+        default:
+        - data:
+            name: Ring Alarm Automation V2
+            message: '❌ Failed to disarm alarm after {{ max_attempts }} attempts. Manual intervention required. Final location: {{ states(''device_tracker.loittafuni'') }}'
+          action: logbook.log
+        - data:
+            title: ❌ Ring Alarm Disarm Failed
+            message: 'Ring Alarm failed to disarm after {{ max_attempts }} attempts.
+
+
+              • Phone location: {{ states(''device_tracker.loittafuni'') }}
+
+              • Alarm state: {{ states(''alarm_control_panel.ring_control_panel'') }}
+
+              • Sensor info: {{ state_attr(''sensor.ring_control_panel_info'', ''alarmState'') }}
+
+              • Time: {{ now().strftime(''%I:%M %p on %A, %b %d'') }}
+
+              Please manually disarm the alarm.'
+          action: notify.mobile_app_loittafuni
+    default:
+    - data:
+        name: Ring Alarm Automation V2
+        message: 'Automation cancelled: Location changed or alarm state changed during
+          stability check. Location: {{ states(''device_tracker.loittafuni'') }},
+          Alarm: {{ states(''alarm_control_panel.ring_control_panel'') }}'
+      action: logbook.log
+  trace:
+    stored_traces: 10
+  mode: single
+- id: '1745272880297'
+  alias: Front Driveway Line Crossed
+  description: Triggered via UniFi smart zone webhook
+  triggers:
+  - webhook_id: -UYPsblgBOv18t2Ay_8h7Avb7
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    trigger: webhook
+  actions:
+  - alias: Take snapshot from Front Driveway
+    target:
+      entity_id: camera.g6_ptz_high_resolution_channel
+    data:
+      filename: /config/www/snapshots/front_driveway_latest.jpg
+    action: camera.snapshot
+  - alias: Send notification with snapshot
+    data:
+      title: "\U0001F3C3 Driveway Line Crossed!"
+      message: Motion detected at {{ now().strftime('%I:%M %p on %A') }}
+      data:
+        image: /local/snapshots/front_driveway_latest.jpg
+        clickAction: /lovelace/front-door
+    action: notify.mobile_app_loittafuni
+  mode: single
+- id: '1745275064537'
+  alias: At Sunset Govee Lights On
+  description: '[DELETE] - Replaced by "Govee & Ground Lights ON at Sunset" automation
+    at line 780'
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: 0
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id:
+      - light.g_outdoor_roof
+      - light.outdoor_ground
+  - action: notify.mobile_app_loittafuni
+    metadata: {}
+    data:
+      title: Lights On Notification
+      message: Govee - ON
+  mode: single
+- id: '1748384466029'
+  alias: Motion on the North side
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    webhook_id: -3TlFPlDCjLIL1R0SYkWXINbL
+  conditions: []
+  actions:
+  - repeat:
+      sequence:
+      - device_id: f53bc3a02a4504cb2e7a5945fe66c192
+        domain: light
+        entity_id: 5be8026211615ebe4efc5eaf656d1d06
+        type: flash
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - device_id: f53bc3a02a4504cb2e7a5945fe66c192
+        domain: light
+        entity_id: 5be8026211615ebe4efc5eaf656d1d06
+        type: flash
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - device_id: f53bc3a02a4504cb2e7a5945fe66c192
+        domain: light
+        entity_id: 5be8026211615ebe4efc5eaf656d1d06
+        type: flash
+      count: 5
+  - action: notify.mobile_app_loittafuni
+    metadata: {}
+    data:
+      message: Someone crossed line on a north side of the house. (Andy's Side)
+      title: "\U0001F6A8\U0001F6A8\U0001F6A8 Northside Motion "
+  mode: single
+- id: '1750104580205'
+  alias: Office AC on -GPT version
+  description: Turn on Office AC if hot, during work hours, while user is home and
+    upstairs
+  triggers:
+  - entity_id: sensor.sami_office_ecosensor_temperature
+    above: 73
+    for:
+      minutes: 5
+    trigger: numeric_state
+  conditions:
+  - condition: time
+    after: 08:00:00
+    before: '20:00:00'
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
+  - condition: state
+    entity_id: device_tracker.loittafuni
+    state: home
+  - condition: numeric_state
+    entity_id: sensor.loittafuni_floors_ascended
+    above: 0
+  actions:
+  - choose:
+    - conditions:
+      - condition: time
+        after: 08:00:00
+        before: '20:00:00'
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: 'on'
+      - condition: state
+        entity_id: device_tracker.loittafuni
+        state: home
+      - condition: numeric_state
+        entity_id: sensor.loittafuni_floors_ascended
+        above: 0
+      sequence:
+      - data:
+          temperature: 70
+          hvac_mode: auto
+        target:
+          device_id: 4bba055e05b5603deddfa14f14c4d6d0
+        action: climate.set_temperature
+      - data:
+          title: ✅ Office AC Activated
+          message: '✅ Office AC turned on at {{ now().strftime(''%I:%M %p on %A, %b
+            %d'') }}. - Temp: {{ states(''sensor.sami_office_ecosensor_temperature'')
+            }}°F - Phone location: {{ states(''device_tracker.loittafuni'') }} - Floors
+            ascended: {{ states(''sensor.loittafuni_floors_ascended'') }} AC has been
+            set to 70°F.
+
+            '
+        action: notify.mobile_app_loittafuni
+    default:
+    - data:
+        title: ⚠️ Automation Skipped
+        message: "❌ Office AC not turned on. Reasons: {% if not (8 <= now().hour <
+          20) %}\n  - Outside allowed hours (8AM–8PM)\n{% endif %} {% if is_state('binary_sensor.workday_sensor',
+          'off') %}\n  - Not a weekday\n{% endif %} {% if not is_state('device_tracker.loittafuni',
+          'home') %}\n  - Phone not at home\n{% endif %} {% if states('sensor.loittafuni_floors_ascended')|int(0)
+          <= 0 %}\n  - Phone not on 2nd floor\n{% endif %} - Temp: {{ states('sensor.sami_office_ecosensor_temperature')
+          }}°F - Time: {{ now().strftime('%I:%M %p on %A, %b %d') }} - Phone location:
+          {{ states('device_tracker.loittafuni') }} - Floors ascended: {{ states('sensor.loittafuni_floors_ascended')
+          }}\n"
+      action: notify.mobile_app_loittafuni
+  mode: single
+- id: '1750117051665'
+  alias: Check Tesla Charging Status
+  description: At 9:05 PM, if anyone is home and car isn't charging, notify. Otherwise
+    retry in 1 hour.
+  triggers:
+  - at: '21:05:00'
+    trigger: time
+  conditions:
+  - condition: state
+    entity_id: input_boolean.skip_tesla_check
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ anyone_home }}'
+      sequence:
+      - condition: template
+        value_template: '{{ not (plugged_in and charging) }}'
+      - data:
+          title: "\U0001F50C Tesla Charging Alert"
+          message: '⚠ Tesla is not charging. - Plugged in: {{ states(''binary_sensor.tesla_wall_connector_vehicle_connected'')
+            }} - Charging: {{ states(''binary_sensor.tesla_wall_connector_contactor_closed'')
+            }} - Status: {{ states(''sensor.tesla_wall_connector_status'') }} - Time:
+            {{ now().strftime(''%I:%M %p'') }}
+
+            '
+        action: notify.mobile_app_loittafuni
+    - conditions:
+      - condition: template
+        value_template: '{{ not anyone_home }}'
+      sequence:
+      - delay:
+          hours: 1
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ is_state(''device_tracker.loittafuni'', ''home'')
+              or is_state(''device_tracker.rajkonna'', ''home'') }}
+
+              '
+          sequence:
+          - condition: template
+            value_template: '{{ not (plugged_in and charging) }}'
+          - data:
+              title: "\U0001F50C Tesla Charging (2nd Attempt)"
+              message: '⚠ Tesla is not charging after retry. - Plugged in: {{ states(''binary_sensor.tesla_wall_connector_vehicle_connected'')
+                }} - Charging: {{ states(''binary_sensor.tesla_wall_connector_contactor_closed'')
+                }} - Status: {{ states(''sensor.tesla_wall_connector_status'') }}
+                - Time: {{ now().strftime(''%I:%M %p'') }}
+
+                '
+            action: notify.mobile_app_loittafuni
+        - conditions:
+          - condition: template
+            value_template: '{{ not (is_state(''device_tracker.loittafuni'', ''home'')
+              or is_state(''device_tracker.rajkonna'', ''home'')) }}
+
+              '
+          sequence:
+          - data:
+              title: ⏭ Tesla Check Skipped?
+              message: 'No one is home. Tesla charging check skipped after retry.
+                Toggle ''Skip Tesla Check Tonight'' to stop future alerts.
+
+                '
+            action: notify.mobile_app_loittafuni
+  mode: single
+  trace:
+    stored_traces: 10
+  variables:
+    anyone_home: '{{ is_state(''device_tracker.loittafuni'', ''home'') or is_state(''device_tracker.rajkonna'',
+      ''home'') }}
+
+      '
+    plugged_in: '{{ is_state(''binary_sensor.tesla_wall_connector_vehicle_connected'',
+      ''on'') }}
+
+      '
+    charging: '{{ is_state(''binary_sensor.tesla_wall_connector_contactor_closed'',
+      ''on'') }}
+
+      '
+- id: '1750117829026'
+  alias: Govee & Ground Lights ON at Sunset
+  description: Turns on Govee and Ground Landscape lights at sunset
+  triggers:
+  - event: sunset
+    trigger: sun
+  actions:
+  - data:
+      brightness_pct: 100
+    target:
+      entity_id:
+      - light.govee_roof_light
+      - light.g_groundlandscape_front
+    action: light.turn_on
+  - delay: 5
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.govee_roof_light
+        state: 'on'
+      - condition: state
+        entity_id: light.g_groundlandscape_front
+        state: 'on'
+      sequence:
+      - data:
+          title: "\U0001F307 Lights ON"
+          message: 'Govee & Ground lights turned ON at {{ now().strftime(''%I:%M %p'')
+            }}.
+
+            '
+        action: notify.mobile_app_loittafuni
+  - condition: or
+    conditions:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: light.govee_roof_light
+        state: 'on'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: light.g_groundlandscape_front
+        state: 'on'
+  - data:
+      title: ⚠️ Light ON Failure
+      message: 'One or more lights failed to turn on at sunset. - Govee Roof: {{ states(''light.govee_roof_light'')
+        }} - Ground Front: {{ states(''light.g_groundlandscape_front'') }} - Time:
+        {{ now().strftime(''%I:%M %p'') }}
+
+        '
+    action: notify.mobile_app_loittafuni
+  mode: single
+  trace:
+    stored_traces: 10
+- id: '1750117896119'
+  alias: Govee & Ground Lights OFF at Sunrise
+  description: Turns off Govee and Ground Landscape lights at sunrise
+  triggers:
+  - event: sunrise
+    trigger: sun
+  actions:
+  - target:
+      entity_id:
+      - light.govee_roof_light
+      - light.g_groundlandscape_front
+    action: light.turn_off
+  - delay: 5
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.govee_roof_light
+        state: 'off'
+      - condition: state
+        entity_id: light.g_groundlandscape_front
+        state: 'off'
+      sequence:
+      - data:
+          title: "\U0001F305 Lights OFF"
+          message: 'Govee & Ground lights turned OFF at {{ now().strftime(''%I:%M
+            %p'') }}.
+
+            '
+        action: notify.mobile_app_loittafuni
+  - condition: or
+    conditions:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: light.govee_roof_light
+        state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: light.g_groundlandscape_front
+        state: 'off'
+  - data:
+      title: ⚠️ Light OFF Failure
+      message: 'One or more lights failed to turn off at sunrise. - Govee Roof: {{
+        states(''light.govee_roof_light'') }} - Ground Front: {{ states(''light.g_groundlandscape_front'')
+        }} - Time: {{ now().strftime(''%I:%M %p'') }}
+
+        '
+    action: notify.mobile_app_loittafuni
+  mode: single
+  trace:
+    stored_traces: 10
+- id: '1750118408985'
+  alias: Stairwell Motion Alert - Aqara
+  description: Sends a notification when motion is detected on the stairs
+  triggers:
+  - type: motion
+    device_id: c98caea7dca4a0c38b4888d55fd3f8fe
+    entity_id: binary_sensor.aqara_stairs_motion
+    domain: binary_sensor
+    for:
+      seconds: 5
+    trigger: device
+  conditions: []
+  actions:
+  - data:
+      title: "\U0001F53B Stair Motion Detected"
+      message: 'Motion detected by Aqara sensor at {{ now().strftime(''%I:%M:%S %p'')
+        }}. Location: Stairwell
+
+        '
+    action: notify.mobile_app_loittafuni
+  mode: single
+- id: '1750272481160'
+  alias: ISP Down
+  description: Notify when ISP is offline for 5+ minutes
+  triggers:
+  - entity_id: binary_sensor.samisalehin_myddns_me
+    to: 'off'
+    for:
+      minutes: 5
+    trigger: state
+  conditions: []
+  actions:
+  - variables:
+      offline_since: '{{ as_datetime(states.binary_sensor.samisalehin_myddns_me.last_changed)
+        }}'
+      now: '{{ now() }}'
+      downtime: '{% set delta = now() - offline_since %} {{ delta.total_seconds()
+        // 60 | int }} minutes
+
+        '
+  - data:
+      title: ❌❌❌ ISP Down ❌❌❌
+      message: samisalehin.myddns.me is down for {{ downtime }}.
+    action: notify.mobile_app_loittafuni
+  mode: single
+- id: '1750275797379'
+  alias: Kitchen Motion Light Control (Dark Hours)
+  description: Kitchen & Hue lights triggered by motion between dusk and dawn. Prompts
+    to override auto shutoff if motion continues.
+  triggers:
+  - entity_id:
+    - binary_sensor.kitchen_motion_sensor
+    - binary_sensor.aqara_stairs_motion
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: or
+    conditions:
+    - condition: sun
+      after: sunset
+    - condition: sun
+      before: sunrise
+  actions:
+  - parallel:
+    - data:
+        title: "\U0001F463 Motion Detected in Kitchen"
+        message: 'Lights activated at {{ now().strftime(''%I:%M %p'') }} due to motion.
+
+          '
+      action: notify.mobile_app_loittafuni
+    - target:
+        entity_id:
+        - light.kitchen_light
+        - light.hue_ambiance_downlight_5
+        - light.hue_ambiance_downlight_4_2
+        - light.hue_ambiance_downlight_3_3
+      data:
+        brightness_pct: 75
+      action: light.turn_on
+  - delay: 00:05:00
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.kitchen_motion_sensor
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.aqara_stairs_motion
+          state: 'on'
+      sequence:
+      - data:
+          title: "\U0001F440 Continued Motion Detected"
+          message: 'Motion still detected in kitchen at {{ now().strftime(''%I:%M
+            %p'') }}. Tap below to keep lights on.
+
+            '
+          data:
+            actions:
+            - action: OVERRIDE_KEEP_ON
+              title: Keep Lights On
+        action: notify.mobile_app_loittafuni
+  - wait_for_trigger:
+    - event_type: mobile_app_notification_action
+      event_data:
+        action: OVERRIDE_KEEP_ON
+      trigger: event
+    timeout: 00:01:00
+    continue_on_timeout: true
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger is not none }}'
+      sequence:
+      - target:
+          entity_id: input_boolean.kitchen_lights_override
+        action: input_boolean.turn_on
+      - data:
+          title: ✅ Override Activated
+          message: Kitchen lights will remain on until manually turned off.
+        action: notify.mobile_app_loittafuni
+  - condition: state
+    entity_id: input_boolean.kitchen_lights_override
+    state: 'off'
+  - target:
+      entity_id: light.kitchen_light
+    action: light.turn_off
+  - delay: 00:05:00
+  - target:
+      entity_id:
+      - light.hue_ambiance_downlight_5
+      - light.hue_ambiance_downlight_4_2
+      - light.hue_ambiance_downlight_3_3
+    action: light.turn_off
+  mode: single
+- id: '1750277357514'
+  alias: Package at the Front Door
+  description: Alert when a package is detected
+  triggers:
+  - webhook_id: package-test2-1zJOOO_dS9mEft_nMHm72VIw
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    trigger: webhook
+  actions:
+  - alias: Take snapshot
+    data:
+      entity_id: camera.g4_doorbell_pro_package_camera
+      filename: /config/www/snapshots/front_door_latest.jpg
+    action: camera.snapshot
+  - alias: Send notification with snapshot
+    data:
+      title: "\U0001F4E6 Package at the Front Door"
+      message: Detected at {{ now().strftime('%I:%M %p on %A') }}
+      data:
+        image: /local/snapshots/front_door_latest.jpg
+        clickAction: /lovelace/front-door
+    action: notify.mobile_app_loittafuni
+  - alias: Lower volume at night
+    choose:
+    - conditions:
+      - condition: sun
+        after: sunset
+      sequence:
+      - target:
+          entity_id:
+          - media_player.smarttv_4k_ffm
+          - media_player.living_room_speaker
+        data:
+          volume_level: 0.3
+        action: media_player.volume_set
+  - alias: Speak TTS alert (between 8 AM–10 PM only)
+    choose:
+    - conditions:
+      - condition: time
+        after: 08:00:00
+        before: '22:00:00'
+      sequence:
+      - target:
+          entity_id:
+          - media_player.smarttv_4k_ffm
+          - media_player.living_room_speaker
+        data:
+          message: Attention! A package has just been delivered to your front door.
+        action: tts.google_say
+  - alias: Wait one day before cleanup
+    delay:
+      days: 1
+  - alias: Delete old snapshots
+    action: shell_command.clean_old_snapshots
+  mode: single
+- id: '1750287078698'
+  alias: Test Snapshot Cleanup
+  description: Manually test shell command for snapshot cleanup
+  triggers: []
+  conditions: []
+  actions:
+  - action: shell_command.clean_old_snapshots
+  mode: single
+- alias: Test Shell Command
+  trigger:
+  - platform: time
+    at: 00:00:00
+  action:
+  - service: shell_command.test_touch_log
+  mode: single
+  id: ede9b2c2372a47ccb21dcbe3adb85b97
+- id: speedtest_hourly_trigger
+  alias: Run Speedtest Every Hour
+  description: 'Runs the Speedtest sensors (download, upload, ping) every hour on
+    the hour.
+
+    '
+  triggers:
+  - minutes: '0'
+    trigger: time_pattern
+  conditions: []
+  actions:
+  - target:
+      entity_id:
+      - sensor.speedtest_download
+      - sensor.speedtest_upload
+      - sensor.speedtest_ping
+    action: homeassistant.update_entity
+  mode: single
+- id: '1752623706569'
+  alias: 'Notify: Xfinity Internet is Down'
+  description: Sends a mobile push if Xfinity is down for 5+ minutes
+  triggers:
+  - entity_id: binary_sensor.73_109_80_161
+    to: 'off'
+    for:
+      minutes: 5
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.73_109_80_161
+    state: 'on'
+    for:
+      minutes: 10
+  actions:
+  - data:
+      title: "\U0001F6A8 Xfinity Internet Down"
+      message: Xfinity has been offline for over 5 minutes.
+    action: notify.mobile_app_loittafuni
+  mode: single
+- id: '1752624473009'
+  alias: 'Notify: DNS Failure Alert'
+  description: Push alert if Pi-hole or AdGuard DNS is down for more than 5 minutes
+  triggers:
+  - entity_id: binary_sensor.192_168_10_3
+    to: 'off'
+    for: 00:05:00
+    trigger: state
+  - entity_id: binary_sensor.192_168_10_4
+    to: 'off'
+    for: 00:05:00
+    trigger: state
+  conditions: []
+  actions:
+  - data:
+      title: "{% if trigger.entity_id == 'binary_sensor.192_168_10_3' %}\n  \U0001F6D1
+        AdGuard DNS Down\n{% elif trigger.entity_id == 'binary_sensor.192_168_10_4'
+        %}\n  \U0001F6D1 Pi-hole DNS Down\n{% else %}\n  \U0001F6D1 DNS Failure\n{%
+        endif %}\n"
+      message: "{% if trigger.entity_id == 'binary_sensor.192_168_10_3' %}\n  AdGuard
+        DNS (192.168.10.3) has been unreachable for 5+ minutes.\n{% elif trigger.entity_id
+        == 'binary_sensor.192_168_10_4' %}\n  Pi-hole DNS (192.168.10.4) has been
+        unreachable for 5+ minutes.\n{% else %}\n  One of your DNS servers is offline.\n{%
+        endif %}\n"
+    action: notify.mobile_app_loittafuni
+  mode: queued
+- id: adguard_ok_banner_cancel
+  alias: AdGuard OK banner – cancel on issue
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.192_168_10_3
+    to: 'off'
+    trigger: state
+  - entity_id: sensor.adguard_home_average_processing_speed
+    above: 60
+    trigger: numeric_state
+  actions:
+  - target:
+      entity_id: timer.adguard_ok_banner
+    action: timer.cancel
+  mode: restart
+- id: '1755474717549'
+  alias: Tag -> Switch Port Control (On/Off/Cancel with verification)v1
+  description: '[DELETE] - Replaced by "Tag -> Switch Port Control with PDU (v2)"
+    automation at line 1320'
+  use_blueprint:
+    path: homeassistant/tag_switch_port_control.yaml
+    input:
+      tag_id: 0d62febe-d129-4754-acf6-c00ecd194c9e
+      notify_device: f721081ff1f87d1543573d81aed5b385
+      switches:
+        entity_id:
+        - switch.ac_sw_core_port_43_poe
+        - switch.ac_sw_core_port_45_poe
+        - switch.ac_sw_core_port_47_poe
+        - switch.ae_sw_officeprinter_poe_4_port_4_poe
+        - switch.ai_sw_livingroom_poe_4_port_2_poe
+        - switch.ai_sw_livingroom_poe_4_port_3_poe
+        device_id: f5fe1299bca88d1d72ccdb8cbd32fe6c
+      verify_delay:
+        hours: 0
+        minutes: 0
+        seconds: 30
+- id: '1755535094261'
+  alias: Office AC
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.aq_serverrack_temp_temperature_2
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    above: 76
+  conditions: []
+  actions:
+  - data:
+      title: "\U0001F976\U0001F976 Office AC"
+      message: Temperature is above 79°F for 5+ minutes. Turn on AC to 68°F?
+      data:
+        actions:
+        - action: TURN_ON_OFFICE_AC
+          title: 'Yes'
+        - action: IGNORE_OFFICE_AC
+          title: 'No'
+    action: notify.mobile_app_loittafuni
+  - wait_for_trigger:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: TURN_ON_OFFICE_AC
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: IGNORE_OFFICE_AC
+    timeout:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    continue_on_timeout: false
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''TURN_ON_OFFICE_AC''
+          }}'
+      sequence:
+      - target:
+          entity_id: climate.office
+        data:
+          hvac_mode: cool
+        action: climate.set_hvac_mode
+      - target:
+          entity_id: climate.office
+        data:
+          temperature: 68
+        action: climate.set_temperature
+      - wait_for_trigger:
+        - trigger: numeric_state
+          entity_id:
+          - sensor.aq_serverrack_temp_temperature_2
+          for:
+            hours: 0
+            minutes: 30
+            seconds: 0
+          below: 70
+      - data:
+          title: Office AC
+          message: Temperature has been at or below 70°F for 30 minutes.
+        action: notify.mobile_app_loittafuni
+    default: []
+  mode: single
+- id: frontdoor_unlock_with_nfc
+  alias: FrontDoorUnlockWithNFC
+  triggers:
+  - webhook_id: -w4NrQBRjW7bdT8Gj6iF1pOiM
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    trigger: webhook
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: device_tracker.YOUR_IPHONE
+      state: home
+  actions:
+  - target:
+      entity_id: camera.g4_doorbell_pro_high_resolution_channel
+    data:
+      filename: '{{ snapshot_file }}'
+    action: camera.snapshot
+  - delay: 00:00:01
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ has_service(''ai_task.process'') }}'
+      sequence:
+      - response_variable: ai
+        data:
+          prompt: 'You are a security assistant. In one short sentence, say what you
+            see at the front door (how many people, any face visible, package present/not
+            present). Text only.
+
+            '
+          attachments:
+          - file_path: '{{ snapshot_file }}'
+        action: ai_task.process
+  - data:
+      title: Unlock front door?
+      message: 'Fingerprint scan detected. {{ ai.response if ai is defined and ai.response
+        is string else '''' }}
+
+        '
+      data:
+        image: '{{ snapshot_url }}'
+        actions:
+        - action: UNLOCK_FRONT_DOOR
+          title: Unlock
+        - action: IGNORE_FRONT_DOOR
+          title: Ignore
+    action: notify.mobile_app_YOUR_IPHONE
+  mode: single
+  variables:
+    snapshot_file: /config/www/snapshots/frontdoor_{{ now().strftime('%Y%m%d-%H%M%S')
+      }}.jpg
+    snapshot_url: '{{ snapshot_file | replace(''/config/www'',''/local'') }}'
+- id: '1759900000001'
+  alias: Tag -> Switch Port Control with PDU (v2)
+  description: 'NFC tag triggers switch port control with PDU power sequencing. Turn
+    Off: PoE ports off → 90s delay → PDU off. Turn On: PDU on → 2min delay → PoE ports
+    on.'
+  triggers:
+  - trigger: tag
+    tag_id: f0c2b522-be96-42c1-bf4f-271ac15f2077
+    id: f0c2b522-be96-42c1-bf4f-271ac15f2077
+  conditions: []
+  variables:
+    action_on: TURN_ON_{{ context.id }}
+    action_off: TURN_OFF_{{ context.id }}
+    action_cancel: CANCEL_{{ context.id }}
+    switch_ports:
+    - switch.ac_sw_core_port_43_poe
+    - switch.ac_sw_core_port_45_poe
+    - switch.ac_sw_core_port_47_poe
+    - switch.ae_sw_officeprinter_poe_4_port_4_poe
+    - switch.ai_sw_livingroom_poe_4_port_2_poe
+    - switch.ai_sw_livingroom_poe_4_port_3_poe
+    pdu_port: switch.zz_pwr_pdu_outlet_9
+  actions:
+  - alias: Send actionable notification
+    action: notify.mobile_app_loittafuni
+    data:
+      title: "\U0001F50C Switch Port Control (v2)"
+      message: 'Control network ports with PDU sequencing.
+
+        Selected ports: {%- for entity in switch_ports %} • {{ state_attr(entity,
+        ''friendly_name'') or entity }}: {{ states(entity) }} {%- endfor %}
+
+        PDU Outlet 9: {{ states(pdu_port) }}'
+      data:
+        sticky: true
+        ttl: 0
+        priority: high
+        channel: Switch Control v2
+        actions:
+        - action: '{{ action_on }}'
+          title: Turn On
+        - action: '{{ action_off }}'
+          title: Turn Off
+        - action: '{{ action_cancel }}'
+          title: Cancel
+  - alias: Wait for user choice
+    wait_for_trigger:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_on }}'
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_off }}'
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_cancel }}'
+    timeout: 00:01:00
+    continue_on_timeout: false
+  - choose:
+    - alias: Cancel pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_cancel }}'
+      sequence:
+      - action: notify.mobile_app_loittafuni
+        data:
+          title: ❌ Action Canceled
+          message: No changes were made to the network ports or PDU.
+    - alias: Turn ON pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_on }}'
+      sequence:
+      - alias: Notify starting power-on sequence
+        action: notify.mobile_app_loittafuni
+        data:
+          title: ⚡ Powering ON
+          message: 'Starting power-on sequence: PDU → 2min delay → PoE ports'
+      - alias: Turn on PDU first
+        target:
+          entity_id: '{{ pdu_port }}'
+        action: switch.turn_on
+      - alias: Wait 2 minutes for equipment to initialize
+        delay: 00:02:00
+      - alias: Turn on all PoE ports
+        repeat:
+          for_each: '{{ switch_ports }}'
+          sequence:
+          - target:
+              entity_id: '{{ repeat.item }}'
+            action: switch.turn_on
+      - alias: Wait for verification
+        delay: 00:01:00
+      - alias: Check final state and notify
+        choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ states(pdu_port) == 'on' and \n   switch_ports | select('is_state',
+              'on') | list | count == switch_ports\n| count }}"
+          sequence:
+          - action: notify.mobile_app_loittafuni
+            data:
+              title: ✅ Power-On Complete
+              message: 'All systems are now ON.
+
+                PDU Outlet 9: {{ states(pdu_port) }}
+
+                PoE Ports ON: {{ switch_ports | select(''is_state'', ''on'') | list
+                | count }}/{{ switch_ports | count }}'
+        default:
+        - action: notify.mobile_app_loittafuni
+          data:
+            title: ⚠️ Power-On Verification Failed
+            message: 'Some devices may not be ON.
+
+              PDU Outlet 9: {{ states(pdu_port) }}
+
+              ON: {{ switch_ports | select(''is_state'', ''on'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}
+
+              OFF: {{ switch_ports | reject(''is_state'', ''on'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}'
+    - alias: Turn OFF pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_off }}'
+      sequence:
+      - alias: Notify starting power-off sequence
+        action: notify.mobile_app_loittafuni
+        data:
+          title: "\U0001F534 Powering OFF"
+          message: 'Starting power-off sequence: PoE ports → 90s delay → PDU'
+      - alias: Turn off all PoE ports first
+        repeat:
+          for_each: '{{ switch_ports }}'
+          sequence:
+          - target:
+              entity_id: '{{ repeat.item }}'
+            action: switch.turn_off
+      - alias: Wait 90 seconds for graceful shutdown
+        delay: 00:01:30
+      - alias: Turn off PDU last
+        target:
+          entity_id: '{{ pdu_port }}'
+        action: switch.turn_off
+      - alias: Wait for verification
+        delay: 00:01:00
+      - alias: Check final state and notify
+        choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ states(pdu_port) == 'off' and \n   switch_ports |
+              select('is_state', 'off') | list | count == switch_ports\n| count }}"
+          sequence:
+          - action: notify.mobile_app_loittafuni
+            data:
+              title: ✅ Power-Off Complete
+              message: 'All systems are now OFF.
+
+                PDU Outlet 9: {{ states(pdu_port) }}
+
+                PoE Ports OFF: {{ switch_ports | select(''is_state'', ''off'') | list
+                | count }}/{{ switch_ports | count }}'
+        default:
+        - action: notify.mobile_app_loittafuni
+          data:
+            title: ⚠️ Power-Off Verification Failed
+            message: 'Some devices may still be ON.
+
+              PDU Outlet 9: {{ states(pdu_port) }}
+
+              OFF: {{ switch_ports | select(''is_state'', ''off'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}
+
+              ON: {{ switch_ports | reject(''is_state'', ''off'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}'
+  mode: single
+- id: '1760000000001'
+  alias: Hallway Motion & Lights (Consolidated)
+  description: 'Consolidated automation: Always sends notification on motion, and
+    turns lights on/off during dark hours (after sunset / before sunrise)'
+  triggers:
+  - type: motion
+    device_id: 96dea59498aeda8ffcf65e55e51e984f
+    entity_id: f1bf004c740dda67f120e9b712d00a33
+    domain: binary_sensor
+    trigger: device
+    for:
+      seconds: 5
+  conditions: []
+  actions:
+  - parallel:
+    - action: notify.mobile_app_loittafuni
+      data: {}
+    - data:
+        title: "\U0001F6A8 Hallway Motion Detected"
+        message: Motion detected in Upstairs Hallway at {{ now().strftime('%I:%M %p')
+          }}
+      action: notify.mobile_app_ipad
+  - choose:
+    - conditions:
+      - condition: sun
+        after: sunset
+        before: sunrise
+      sequence:
+      - data:
+          name: Hallway Motion Automation
+          message: Dark hours detected - turning on hallway lights for 5 minutes
+        action: logbook.log
+      - alias: Turn on 3 hallway lights
+        parallel:
+        - type: turn_on
+          device_id: b3f2c54781202b41b53bfa2681379217
+          entity_id: e3b307d53c7876f1cb5d6b897cccab4e
+          domain: light
+          brightness_pct: 50
+        - type: turn_on
+          device_id: 51ccbfc8d3d48849910a4246db678e3b
+          entity_id: 07907b8cd765ef20a4eb5c1cd8eed9b3
+          domain: light
+          brightness_pct: 50
+        - type: turn_on
+          device_id: 4bbc3fdb8c8d4174be4be4ed1c008f7b
+          entity_id: 38a617f37a6876ba9f429f4e7e6929ba
+          domain: light
+          brightness_pct: 50
+      - delay:
+          hours: 0
+          minutes: 5
+          seconds: 0
+          milliseconds: 0
+      - alias: Turn off 3 hallway lights
+        parallel:
+        - type: turn_off
+          device_id: b3f2c54781202b41b53bfa2681379217
+          entity_id: e3b307d53c7876f1cb5d6b897cccab4e
+          domain: light
+        - type: turn_off
+          device_id: 51ccbfc8d3d48849910a4246db678e3b
+          entity_id: 07907b8cd765ef20a4eb5c1cd8eed9b3
+          domain: light
+        - type: turn_off
+          device_id: 4bbc3fdb8c8d4174be4be4ed1c008f7b
+          entity_id: 38a617f37a6876ba9f429f4e7e6929ba
+          domain: light
+      - data:
+          name: Hallway Motion Automation
+          message: Hallway lights turned off after 5 minutes
+        action: logbook.log
+    default:
+    - data:
+        name: Hallway Motion Automation
+        message: Daytime - notification only, no lights
+      action: logbook.log
+  mode: single
+  trace:
+    stored_traces: 10
+- id: ipad_battery_management_2025
+  alias: iPad Wallboard Battery Management (25%-100% Cycle)
+  description: Cycles iPad charging between 25% and 100% to preserve battery longevity
+  triggers:
+  - entity_id: sensor.wallboard_battery_level
+    above: 99
+    id: battery_full
+    trigger: numeric_state
+  - entity_id: sensor.wallboard_battery_level
+    below: 26
+    id: battery_low
+    trigger: numeric_state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: battery_full
+      sequence:
+      - target:
+          entity_id: switch.ai_sw_livingroom_poe_4_port_1_poe
+        action: switch.turn_off
+      - data:
+          title: "\U0001F50B iPad Battery Management"
+          message: iPad wallboard reached 100% - stopping charge to preserve battery
+          data:
+            push:
+              sound:
+                name: default
+        action: notify.mobile_app_loittafuni
+      - data:
+          name: iPad Battery Management
+          message: Stopped charging at 100% battery
+        action: logbook.log
+    - conditions:
+      - condition: trigger
+        id: battery_low
+      sequence:
+      - target:
+          entity_id: switch.ai_sw_livingroom_poe_4_port_1_poe
+        action: switch.turn_on
+      - action: notify.mobile_app_loittafuni
+        data:
+          title: "\U0001F50B iPad Battery Management"
+          message: iPad wallboard dropped to 25% - starting charge
+          data:
+            push:
+              sound:
+                name: default
+      - data:
+          name: iPad Battery Management
+          message: Started charging at 25% battery
+        action: logbook.log
+  mode: single
+- id: doorbell_events_ai_handler_2025
+  alias: Doorbell AI Event Handler with Live View
+  description: Shows live camera feed on iPad and sends AI-analyzed notifications
+    for doorbell events
+  mode: single
+  triggers:
+  - platform: state
+    entity_id: event.g4_doorbell_pro_doorbell
+    id: doorbell_ring
+  - platform: state
+    entity_id: binary_sensor.g4_doorbell_pro_package_detected
+    to: 'on'
+    id: package_detected
+  - platform: state
+    entity_id: binary_sensor.g4_doorbell_pro_person_detected
+    to: 'on'
+    for:
+      seconds: 3
+    id: person_detected
+  conditions:
+  - condition: template
+    value_template: "{% set last_trigger = state_attr(this.entity_id, 'last_triggered')
+      %} {{ last_trigger is none or \n   (now() - last_trigger).total_seconds() >
+      180 }}\n"
+  actions:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.doorbell_camera_show
+  - variables:
+      timestamp: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
+  - alias: Take package camera snapshot
+    service: camera.snapshot
+    target:
+      entity_id: camera.g4_doorbell_pro_package_camera
+    data:
+      filename: /config/www/snapshots/doorbell/event_{{ timestamp }}.jpg
+  - delay:
+      seconds: 1
+  - condition: time
+    after: 08:00:00
+    before: '22:00:00'
+  - variables:
+      event_time: '{{ now().strftime(''%I:%M %p'') }}'
+      event_description: '{% if trigger.id == ''doorbell_ring'' %}
+
+        Someone is at your front door
+
+        {% elif trigger.id == ''package_detected'' %}
+
+        A package has been delivered to your doorstep
+
+        {% elif trigger.id == ''person_detected'' %}
+
+        A person has been detected at your front entrance
+
+        {% else %}
+
+        Doorbell event triggered
+
+        {% endif %}
+
+        '
+  - service: notify.mobile_app_loittafuni
+    data:
+      title: "{% if trigger.id == 'doorbell_ring' %}\n\U0001F514 Doorbell Ring\n{%
+        elif trigger.id == 'package_detected' %}\n\U0001F4E6 Package Detected\n{%
+        elif trigger.id == 'person_detected' %}\n\U0001F6B6 Person at Front Door\n{%
+        endif %}\n"
+      message: '{{ event_description }} at {{ event_time }}'
+      data:
+        image: /local/snapshots/doorbell/event_{{ timestamp }}.jpg
+        push:
+          sound:
+            name: '{{ ''doorbell'' if trigger.id == ''doorbell_ring'' else ''default''
+              }}'
+        actions:
+        - action: VIEW_CAMERAS
+          title: View Live
+        - action: UNLOCK_DOOR
+          title: Unlock Door
+  - service: logbook.log
+    data:
+      name: Doorbell Handler
+      message: '{{ event_description }} at {{ event_time }}
+
+        Notification sent to mobile device
+
+        '
+- id: doorbell_camera_hide_timer_2025
+  alias: Hide Doorbell Camera After 1 Minute
+  description: Automatically hides the doorbell camera feed after 1 minute of display
+  mode: restart
+  triggers:
+  - platform: state
+    entity_id: input_boolean.doorbell_camera_show
+    to: 'on'
+    for:
+      minutes: 1
+  conditions: []
+  actions:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.doorbell_camera_show
+  - service: logbook.log
+    data:
+      name: Doorbell Camera Display
+      message: Camera feed hidden after 1 minute timeout
+- id: doorbell_snapshot_cleanup_2025
+  alias: Daily Doorbell Snapshot Cleanup
+  description: Deletes doorbell snapshots older than 24 hours
+  mode: single
+  triggers:
+  - platform: time
+    at: 03:00:00
+  conditions: []
+  actions:
+  - service: shell_command.clean_doorbell_snapshots
+  - service: logbook.log
+    data:
+      name: Doorbell Snapshot Cleanup
+      message: Old doorbell snapshots deleted
+# Monthly SNOPUD Data Entry Reminder
+# This automation reminds you on the 10th of each month to add SNOPUD usage data
+
+- id: snopud_monthly_reminder
+  alias: "SNOPUD Monthly Data Entry Reminder"
+  description: "Reminds you monthly to add SNOPUD usage data from the website"
+  trigger:
+    - platform: time_pattern
+      day: "10"
+      hour: 9
+      minute: 0
+  action:
+    - service: notify.mobile_app_loittafuni
+      data:
+        title: "📊 SNOPUD Data Entry Reminder"
+        message: "Time to add this month's SNOPUD usage data! Visit your SNOPUD account and download the CSV, then update Home Assistant."
+        data:
+          actions:
+            - action: "open_url"
+              title: "Open SNOPUD Website"
+              url: "https://www.snopud.com"
+    - delay: "00:05:00"
+    - service: persistent_notification.create
+      data:
+        title: "SNOPUD Monthly Data Entry"
+        message: |
+          **Time to update your SNOPUD usage data!**
+          
+          1. Visit https://www.snopud.com and log in
+          2. Download your monthly usage CSV
+          3. Run the update script or manually add the data
+          
+          Last updated: {{ states('sensor.snopud_meter_snopud_grid_kwh_total') | float(0) | round(0) }} kWh
+        notification_id: "snopud_monthly_reminder"
+

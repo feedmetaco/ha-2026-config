@@ -1,0 +1,89 @@
+blueprint:
+  name: Low battery level detection for all battery sensors
+  description: Regularly test all sensors with 'battery' device-class for crossing
+    a certain battery level threshold and if so execute an action.
+  domain: automation
+  input:
+    threshold:
+      name: Battery warning level threshold
+      description: Battery sensors below threshold are assumed to be low-battery (as
+        well as binary battery sensors with value 'on').
+      default: 20
+      selector:
+        number:
+          min: 5.0
+          max: 100.0
+          unit_of_measurement: '%'
+          mode: slider
+          step: 5.0
+    time:
+      name: Time to test at
+      description: Test is run at the configured time
+      default: '10:00:00'
+      selector:
+        time: {}
+    day:
+      name: Weekday to test on
+      description: 'Test is run at configured time either every day (0) or on a given
+        weekday (1: Monday ... 7: Sunday)'
+      default: 0
+      selector:
+        number:
+          min: 0.0
+          max: 7.0
+          mode: slider
+          step: 1.0
+    exclude:
+      name: Excluded Sensors
+      description: Battery sensors (e.g. smartphone) to exclude from detection.
+      default:
+        exclude_entities: []
+      selector:
+        target:
+          entity:
+          - device_class:
+            - battery
+    actions:
+      name: Actions
+      description: Send a notification or perform some other Action. `{{names}}` is
+        replaced with the names of the sensors low on battery.
+      selector:
+        action: {}
+  source_url: https://gist.github.com/josephquigley/03f5de47827f798539cebbe179e15bc9
+variables:
+  day: !input day
+  threshold: !input threshold
+  exclude: !input exclude
+  names: '{% set ns = namespace(devices = [], device_ids = [], exclude=[]) %} {% for
+    entity_id in exclude.exclude_entities %} {% set is_entity_only = device_id(entity_id)
+    == None %} {% set id = (entity_id if is_entity_only else device_id(entity_id))|string
+    %} {% set ns.exclude = ns.exclude + [id] %} {% endfor %}
+
+    {% for platform in [states.binary_sensor, states.sensor] %} {% for item in platform
+    %} {% set entity_id = item.entity_id|string %} {% if is_state_attr(entity_id,
+    ''device_class'', ''battery'') and is_state_attr(entity_id, ''state_class'', ''measurement'')
+    %} {% if is_state(entity_id, ''on'') or (is_number(states(entity_id)) and states(entity_id)|int
+    < threshold) %} {% set is_entity_only = device_id(entity_id) == None %} {% set
+    id = (entity_id if is_entity_only else device_id(entity_id))|string %} {% if not
+    id in ns.device_ids and not id in ns.exclude %} {% set device_name = device_attr(id|string,
+    ''name'') if device_attr(id|string, ''name_by_user'') == None else device_attr(id|string,
+    ''name_by_user'') %} {% set entity_name = state_attr(entity_id, ''name'') if state_attr(entity_id,
+    ''friendly_name'') == None else state_attr(entity_id, ''friendly_name'') %} {%
+    set name = entity_name if is_entity_only else device_name %} {% set ns.device_ids
+    = ns.device_ids + [id] %} {% set battery_level_entity = entity_id if is_entity_only
+    else device_entities(id)|first %} {% set ns.devices = ns.devices + [{''id'': id,
+    ''name'': name|trim, ''battery_level'': states(entity_id)|int, ''is_entity'':
+    is_entity_only}] %} {% endif %} {% endif %} {% endif %} {% endfor %} {% endfor
+    %} {{ ns.devices|sort(attribute=''battery_level'')|map(attribute=''name'')|join('',
+    '') }}'
+trigger:
+- platform: time
+  at: !input time
+condition:
+- condition: template
+  value_template: '{{ names != '''' and (day | int == 0 or day | int == now().isoweekday())
+    }}'
+action:
+- choose: []
+  default: !input actions
+mode: single

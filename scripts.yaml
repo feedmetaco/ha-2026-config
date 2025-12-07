@@ -1,0 +1,251 @@
+new_script:
+  use_blueprint:
+    path: homeassistant/confirmable_notification.yaml
+    input:
+      notify_device: f721081ff1f87d1543573d81aed5b385
+      title: "\U0001F6A8 Should I set alarm  ? "
+      message: Sami is outside the home zone, recomend seting up alarm
+      confirm_action:
+      - action: alarm_control_panel.alarm_arm_away
+        metadata: {}
+        data:
+          code: '3325'
+        target:
+          entity_id: alarm_control_panel.ring_control_panel
+  alias: New script
+  description: ''
+'1756447207170':
+  use_blueprint:
+    path: homeassistant/confirmable_notification.yaml
+    input:
+      notify_device: f721081ff1f87d1543573d81aed5b385
+      confirm_action:
+      - action: alarm_control_panel.alarm_arm_away
+        metadata: {}
+        data:
+          code: '3325'
+      message: 'Ring aram away '
+  alias: Ring Away
+  description: ''
+unvr_of:
+  sequence:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.zz_pwr_pdu_outlet_9
+  alias: 'UNVR Of '
+  description: ''
+unvr_on:
+  sequence:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.zz_pwr_pdu_outlet_9
+  alias: UNVR ON
+  description: ''
+porch_light_toggle:
+  sequence:
+  - action: light.toggle
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      area_id: porch
+      device_id:
+      - 333fbe3301fab681707d704b34811a06
+      - 27f07fb0f036f983a66484f10ca7d8ef
+  alias: Porch Light Toggle
+  description: ''
+  icon: mdi:string-lights
+switch_port_control_with_pdu:
+  alias: Switch Port Control with PDU (Manual)
+  description: 'Manual control for network ports with PDU sequencing. Turn Off: PoE ports off → 90s delay → PDU off. Turn On: PDU on → 2min delay → PoE ports on.'
+  icon: mdi:network-outline
+  variables:
+    action_on: TURN_ON_{{ context.id }}
+    action_off: TURN_OFF_{{ context.id }}
+    action_cancel: CANCEL_{{ context.id }}
+    switch_ports:
+    - switch.ac_sw_core_port_43_poe
+    - switch.ac_sw_core_port_45_poe
+    - switch.ac_sw_core_port_47_poe
+    - switch.ae_sw_officeprinter_poe_4_port_4_poe
+    - switch.ai_sw_livingroom_poe_4_port_2_poe
+    - switch.ai_sw_livingroom_poe_4_port_3_poe
+    pdu_port: switch.zz_pwr_pdu_outlet_9
+  sequence:
+  - alias: Send actionable notification
+    action: notify.mobile_app_loittafuni
+    data:
+      title: "\U0001F50C Switch Port Control (v2)"
+      message: 'Control network ports with PDU sequencing.
+
+        Selected ports: {%- for entity in switch_ports %} • {{ state_attr(entity,
+        ''friendly_name'') or entity }}: {{ states(entity) }} {%- endfor %}
+
+        PDU Outlet 9: {{ states(pdu_port) }}'
+      data:
+        sticky: true
+        ttl: 0
+        priority: high
+        channel: Switch Control v2
+        actions:
+        - action: '{{ action_on }}'
+          title: Turn On
+        - action: '{{ action_off }}'
+          title: Turn Off
+        - action: '{{ action_cancel }}'
+          title: Cancel
+  - alias: Wait for user choice
+    wait_for_trigger:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_on }}'
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_off }}'
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_cancel }}'
+    timeout: 00:01:00
+    continue_on_timeout: false
+  - choose:
+    - alias: Cancel pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_cancel }}'
+      sequence:
+      - action: notify.mobile_app_loittafuni
+        data:
+          title: ❌ Action Canceled
+          message: No changes were made to the network ports or PDU.
+    - alias: Turn ON pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_on }}'
+      sequence:
+      - alias: Notify starting power-on sequence
+        action: notify.mobile_app_loittafuni
+        data:
+          title: ⚡ Powering ON
+          message: 'Starting power-on sequence: PDU → 2min delay → PoE ports'
+      - alias: Turn on PDU first
+        target:
+          entity_id: '{{ pdu_port }}'
+        action: switch.turn_on
+      - alias: Wait 2 minutes for equipment to initialize
+        delay: 00:02:00
+      - alias: Turn on all PoE ports
+        repeat:
+          for_each: '{{ switch_ports }}'
+          sequence:
+          - target:
+              entity_id: '{{ repeat.item }}'
+            action: switch.turn_on
+      - alias: Wait for verification
+        delay: 00:01:00
+      - alias: Check final state and notify
+        choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ states(pdu_port) == 'on' and \n   switch_ports | select('is_state',
+              'on') | list | count == switch_ports\n| count }}"
+          sequence:
+          - action: notify.mobile_app_loittafuni
+            data:
+              title: ✅ Power-On Complete
+              message: 'All systems are now ON.
+
+                PDU Outlet 9: {{ states(pdu_port) }}
+
+                PoE Ports ON: {{ switch_ports | select(''is_state'', ''on'') | list
+                | count }}/{{ switch_ports | count }}'
+        default:
+        - action: notify.mobile_app_loittafuni
+          data:
+            title: ⚠️ Power-On Verification Failed
+            message: 'Some devices may not be ON.
+
+              PDU Outlet 9: {{ states(pdu_port) }}
+
+              ON: {{ switch_ports | select(''is_state'', ''on'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}
+
+              OFF: {{ switch_ports | reject(''is_state'', ''on'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}'
+    - alias: Turn OFF pressed
+      conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_off }}'
+      sequence:
+      - alias: Notify starting power-off sequence
+        action: notify.mobile_app_loittafuni
+        data:
+          title: "\U0001F534 Powering OFF"
+          message: 'Starting power-off sequence: PoE ports → 90s delay → PDU'
+      - alias: Turn off all PoE ports first
+        repeat:
+          for_each: '{{ switch_ports }}'
+          sequence:
+          - target:
+              entity_id: '{{ repeat.item }}'
+            action: switch.turn_off
+      - alias: Wait 90 seconds for graceful shutdown
+        delay: 00:01:30
+      - alias: Turn off PDU last
+        target:
+          entity_id: '{{ pdu_port }}'
+        action: switch.turn_off
+      - alias: Wait for verification
+        delay: 00:01:00
+      - alias: Check final state and notify
+        choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ states(pdu_port) == 'off' and \n   switch_ports |
+              select('is_state', 'off') | list | count == switch_ports\n| count }}"
+          sequence:
+          - action: notify.mobile_app_loittafuni
+            data:
+              title: ✅ Power-Off Complete
+              message: 'All systems are now OFF.
+
+                PDU Outlet 9: {{ states(pdu_port) }}
+
+                PoE Ports OFF: {{ switch_ports | select(''is_state'', ''off'') | list
+                | count }}/{{ switch_ports | count }}'
+        default:
+        - action: notify.mobile_app_loittafuni
+          data:
+            title: ⚠️ Power-Off Verification Failed
+            message: 'Some devices may still be ON.
+
+              PDU Outlet 9: {{ states(pdu_port) }}
+
+              OFF: {{ switch_ports | select(''is_state'', ''off'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}
+
+              ON: {{ switch_ports | reject(''is_state'', ''off'') | map(''state_attr'',
+              ''friendly_name'') | list | join('', '') or ''none'' }}'
+  mode: single
+trigger_switch_port_control_pdu_v2:
+  alias: "Trigger Switch Port Control PDU v2"
+  description: "Helper script to trigger the Tag -> Switch Port Control with PDU (v2) automation"
+  icon: mdi:network-outline
+  sequence:
+    - service: automation.trigger
+      target:
+        entity_id: automation.tag_switch_port_control_with_pdu_v2
+      data: {}
+    - service: logbook.log
+      data:
+        name: "PDU Automation Trigger"
+        message: "Switch Port Control PDU v2 automation triggered via script"
+        entity_id: automation.tag_switch_port_control_with_pdu_v2
+  mode: single
+

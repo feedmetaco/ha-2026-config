@@ -1,0 +1,98 @@
+{
+  "dashboard": {
+    "title": "\ud83c\udf10 Network & Power - Live Monitoring",
+    "uid": "noc-network-power",
+    "tags": [
+      "noc",
+      "network",
+      "power",
+      "unifi"
+    ],
+    "refresh": "10s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Power Consumption",
+        "type": "gauge",
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT state FROM states WHERE entity_id = 'sensor.total_power' ORDER BY last_updated DESC LIMIT 1",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "watt",
+            "min": 0,
+            "max": 10000,
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 5000
+                },
+                {
+                  "color": "red",
+                  "value": 8000
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Switch States (449 Switches)",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "\n                        SELECT state, COUNT(*) as count\n                        FROM states\n                        WHERE entity_id LIKE 'switch.%'\n                        GROUP BY state\n                    ",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Camera Status (29 Cameras)",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) FROM states WHERE entity_id LIKE 'camera.%'",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ],
+        "options": {
+          "graphMode": "none",
+          "textMode": "value_and_name"
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

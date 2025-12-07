@@ -1,0 +1,54 @@
+{
+  "dashboard": {
+    "title": "\ud83d\udd12 Security Monitoring - 256 Binary Sensors",
+    "uid": "noc-security",
+    "tags": [
+      "noc",
+      "security",
+      "monitoring"
+    ],
+    "refresh": "10s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Entry Point Status",
+        "type": "table",
+        "gridPos": {
+          "h": 12,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "\n                        SELECT entity_id, state, last_changed\n                        FROM states\n                        WHERE entity_id LIKE 'binary_sensor.%door%'\n                           OR entity_id LIKE 'binary_sensor.%window%'\n                        ORDER BY last_changed DESC\n                        LIMIT 20\n                    ",
+            "format": "table",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Motion Detection Activity",
+        "type": "state-timeline",
+        "gridPos": {
+          "h": 12,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "\n                        SELECT last_updated as time, entity_id, state\n                        FROM states\n                        WHERE entity_id LIKE 'binary_sensor.%motion%'\n                        AND last_updated > NOW() - INTERVAL 24 HOUR\n                        ORDER BY time\n                    ",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}

@@ -1,0 +1,9 @@
+{
+  "isp": "Comcast Cable",
+  "download_bps": 2238000000,
+  "upload_bps": 357000000,
+  "avg_latency": 11,
+  "max_latency": 13,
+  "packet_loss": 0,
+  "uptime": 100
+}

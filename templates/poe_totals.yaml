@@ -1,0 +1,172 @@
+# /config/templates/poe_totals.yaml
+- sensor:
+
+    # Helper macro-like pattern sum: pass a regex pattern for the device ports
+    # Example pattern: ^sensor.ac_sw_core_port_\d+_poe_power$
+    # NOTE: \d+ is important — matches numbered ports.
+    # -----------------------------------------------
+
+    # AC_SW_CORE (budget 720 W)
+    - name: "AC_SW_CORE PoE used"
+      unique_id: ac_sw_core_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.ac_sw_core_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.ac_sw_core_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AC_SW_CORE PoE budget"
+      unique_id: ac_sw_core_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 720 }}"
+
+    # AA_GW_UDMP_SE (budget 100 W)
+    - name: "AA_GW_UDMP_SE PoE used"
+      unique_id: aa_gw_udmp_se_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.aa_gw_udmp_se_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.aa_gw_udmp_se_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AA_GW_UDMP_SE PoE budget"
+      unique_id: aa_gw_udmp_se_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 100 }}"
+
+    # AD_SW_FLEX_2_5_DESK (120 W)
+    - name: "AD_SW_FLEX_2_5_DESK PoE used"
+      unique_id: ad_sw_flex_2_5_desk_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.ad_sw_flex_2_5_desk_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.ad_sw_flex_2_5_desk_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AD_SW_FLEX_2_5_DESK PoE budget"
+      unique_id: ad_sw_flex_2_5_desk_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 120 }}"
+
+    # AE_SW_OFFICEPRINTER_POE_4 (60 W)
+    - name: "AE_SW_OFFICEPRINTER_POE_4 PoE used"
+      unique_id: ae_sw_officeprinter_poe_4_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.ae_sw_officeprinter_poe_4_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.ae_sw_officeprinter_poe_4_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AE_SW_OFFICEPRINTER_POE_4 PoE budget"
+      unique_id: ae_sw_officeprinter_poe_4_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 60 }}"
+
+    # AI_SW_LIVINGROOM_POE_4 (60 W)
+    - name: "AI_SW_LIVINGROOM_POE_4 PoE used"
+      unique_id: ai_sw_livingroom_poe_4_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.ai_sw_livingroom_poe_4_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.ai_sw_livingroom_poe_4_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AI_SW_LIVINGROOM_POE_4 PoE budget"
+      unique_id: ai_sw_livingroom_poe_4_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 60 }}"
+
+    # AK_BACKYARD_SWITCH (60 W)
+    - name: "AK_BACKYARD_SWITCH PoE used"
+      unique_id: ak_backyard_switch_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      availability: >-
+        {{ (expand(states.sensor)
+            | selectattr('entity_id','search','^sensor.ak_backyard_switch_port_\\d+_poe_power$')
+            | list | count) > 0 }}
+      state: >-
+        {{ expand(states.sensor)
+           | selectattr('entity_id','search','^sensor.ak_backyard_switch_port_\\d+_poe_power$')
+           | map(attribute='state') | map('float', 0) | sum }}
+    - name: "AK_BACKYARD_SWITCH PoE budget"
+      unique_id: ak_backyard_switch_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 60 }}"
+
+    # USW_ULTRA_60W — leave 0 until per-port power shows up
+    - name: "USW_ULTRA_60W PoE used"
+      unique_id: usw_ultra_60w_poe_used
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      icon: mdi:power-plug
+      state: 0
+    - name: "USW_ULTRA_60W PoE budget"
+      unique_id: usw_ultra_60w_poe_budget
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      state: "{{ 60 }}"
+
+    # Total UniFi PoE Energy (sum of all switch energy sensors)
+    - name: "UniFi Total PoE Energy"
+      unique_id: unifi_total_poe_energy
+      unit_of_measurement: "kWh"
+      device_class: energy
+      state_class: total_increasing
+      state: >
+        {% set switches = [
+          'sensor.ac_sw_core_poe_energy',
+          'sensor.aa_gw_udmp_se_poe_energy',
+          'sensor.ad_sw_flex_2_5_desk_poe_energy',
+          'sensor.ae_sw_officeprinter_poe_4_poe_energy',
+          'sensor.ai_sw_livingroom_poe_4_poe_energy',
+          'sensor.ak_backyard_switch_poe_energy',
+          'sensor.usw_ultra_60w_poe_energy'
+        ] %}
+        {{ switches | map('states') | map('float', 0) | sum | round(3) }}

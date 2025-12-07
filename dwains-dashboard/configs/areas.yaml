@@ -1,0 +1,55 @@
+bedroom:
+  icon: mdi:bed-king
+  floor: '2'
+  disabled: false
+  sort_order: 1
+sami_office:
+  sort_order: 4
+living_room:
+  sort_order: 10
+kitchen:
+  sort_order: 11
+outside:
+  sort_order: 12
+backyard:
+  sort_order: 13
+entertainment_room:
+  sort_order: 6
+guest_room:
+  sort_order: 8
+emi_office:
+  sort_order: 7
+guest_bathroom:
+  sort_order: 9
+master_bathroom:
+  sort_order: 3
+dinning_roo:
+  sort_order: 14
+front_livng_room:
+  sort_order: 15
+garage:
+  sort_order: 16
+porch:
+  sort_order: 17
+down_staris_hallway:
+  sort_order: 18
+upstairs_hallway:
+  sort_order: 5
+server_rack:
+  sort_order: 19
+entrance:
+  sort_order: 20
+office:
+  sort_order: 21
+entertainment:
+  sort_order: 22
+upstairs:
+  sort_order: 23
+all_lights:
+  sort_order: 24
+downstairs:
+  sort_order: 25
+upstairs_4k:
+  sort_order: 2
+dining_room:
+  sort_order: 26

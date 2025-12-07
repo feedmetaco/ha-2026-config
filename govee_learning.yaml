@@ -1,0 +1,20 @@
+E5:6C:A4:C1:38:E7:7B:36:
+  set_brightness_max:
+  get_brightness_max: 100
+  before_set_brightness_turn_on: false
+  config_offline_is_off: false
+F0:EB:C7:32:38:31:57:8B:
+  set_brightness_max: 100
+  get_brightness_max: 100
+  before_set_brightness_turn_on: false
+  config_offline_is_off: false
+C1:08:D2:32:37:35:2A:8D:
+  set_brightness_max:
+  get_brightness_max: 100
+  before_set_brightness_turn_on: false
+  config_offline_is_off: false
+17:A3:D2:ED:80:CB:96:10:
+  set_brightness_max: 100
+  get_brightness_max: 100
+  before_set_brightness_turn_on: false
+  config_offline_is_off: false

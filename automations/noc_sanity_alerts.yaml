@@ -1,0 +1,87 @@
+# NOC Sanity Alerts & Missing Data Detection
+# Created by Agent 7 - December 7, 2025
+
+- alias: "Alert - Critical Power Sensor Unavailable"
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.total_power_consumption
+        - sensor.bambu_lab_power
+      to: "unavailable"
+      for:
+        minutes: 5
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "🚨 Critical Sensor Unavailable"
+        message: "{{ trigger.entity_id }} has been unavailable for 5 minutes"
+    - service: logbook.log
+      data:
+        name: "NOC Alert"
+        message: "Critical sensor {{ trigger.entity_id }} unavailable"
+
+- alias: "Alert - Network Device Offline"
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.aa_gw_udmp_se
+        - binary_sensor.ac_sw_core
+      to: "off"
+      for:
+        minutes: 2
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "🔴 Network Device Offline"
+        message: "{{ trigger.to_state.name }} has been offline for 2 minutes"
+
+- alias: "Alert - PoE Budget Warning"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.unifi_total_poe_power_used
+      above: 944  # 80% of 1180W total budget
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "⚠️ PoE Budget Warning"
+        message: "PoE usage at {{ states('sensor.unifi_total_poe_power_used') }}W (>80% of budget)"
+
+- alias: "Alert - High Power Consumption"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.total_power_consumption
+      above: 1500
+      for:
+        minutes: 10
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "⚡ High Power Alert"
+        message: "Total power draw {{ states('sensor.total_power_consumption') }}W for 10+ minutes"
+
+- alias: "Alert - Internet Slow"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.wan1_down_mbps
+      below: 100
+      for:
+        minutes: 5
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "🐌 Slow Internet"
+        message: "WAN1 download speed only {{ states('sensor.wan1_down_mbps') }} Mbps"
+
+- alias: "Alert - DNS Filtering Disabled"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.dns_filtering_health
+      to: "off"
+      for:
+        minutes: 1
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "🛡️ DNS Filtering Disabled"
+        message: "Both AdGuard and Pi-hole are inactive"
+

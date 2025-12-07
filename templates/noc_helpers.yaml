@@ -1,0 +1,9 @@
+- sensor:
+    - name: "UniFi UDM Uptime (hrs)"
+      unique_id: unifi_udm_uptime_hours
+      unit_of_measurement: "hrs"
+      state: >
+        {% set uptime = states('sensor.unifi_udmp_uptime') | int(0) %}
+        {{ (uptime / 3600) | round(1) }}
+      availability: >
+        {{ states('sensor.unifi_udmp_uptime') not in ['unknown','unavailable', None] }}

@@ -1,0 +1,1352 @@
+# NFL Command Center Dashboard
+# This is a complete dashboard YAML that can be imported into Home Assistant
+# Uses ONLY standard Home Assistant components - no custom cards required!
+# 
+# INSTALLATION INSTRUCTIONS:
+# 1. Go to Settings -> Dashboards in Home Assistant
+# 2. Click "Add Dashboard" 
+# 3. Choose "New dashboard from scratch"
+# 4. Name it "NFL Command Center"
+# 5. After creation, click the three dots menu -> "Raw configuration editor"
+# 6. Replace all content with this YAML
+# 7. Save and enjoy!
+
+title: 🏈 NFL Command Center
+theme: ios-dark-mode-dark-green
+views:
+  # View 1: My Team (Seahawks Focus)
+  - title: 🟢 My Team
+    path: seahawks
+    icon: mdi:account-star
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              # 🟢 SEAHAWKS — GAME CENTER
+            card_mod:
+              style: |
+                ha-card {
+                  background: transparent;
+                  box-shadow: none;
+                  text-align: center;
+                  color: #69BE28;
+                  font-weight: 900;
+                  letter-spacing: 3px;
+                }
+          
+          # Enhanced Seahawks Section with Next Game Info
+          - type: conditional
+            conditions:
+              - entity: sensor.nfl_sea
+                state: Final
+            card:
+              type: custom:auto-entities
+              card:
+                type: grid
+                columns: 1
+                square: false
+              card_param: cards
+              filter:
+                include:
+                  - entity_id: sensor.nfl_sea
+                    options:
+                      type: custom:teamtracker-card
+                      outline: true
+                      card_mod:
+                        style: |
+                          ha-card {
+                            border: 2px solid #69BE28;
+                            box-shadow: 0 0 16px rgba(105,190,40,.55);
+                            transform: scale(1.01);
+                          }
+          
+          - type: conditional
+            conditions:
+              - entity: sensor.nfl_sea
+                state_not: Final
+            card:
+              type: custom:auto-entities
+              card:
+                type: grid
+                columns: 1
+                square: false
+              card_param: cards
+              filter:
+                include:
+                  - entity_id: sensor.nfl_sea
+                    options:
+                      type: custom:teamtracker-card
+                      outline: true
+                      card_mod:
+                        style: |
+                          ha-card {
+                            border: 2px solid #69BE28;
+                            box-shadow: 0 0 30px rgba(105,190,40,.8);
+                            transform: scale(1.02);
+                            animation: pulse-green 2s infinite;
+                          }
+                          @keyframes pulse-green {
+                            0% { box-shadow: 0 0 30px rgba(105,190,40,.8); }
+                            50% { box-shadow: 0 0 40px rgba(105,190,40,1); }
+                            100% { box-shadow: 0 0 30px rgba(105,190,40,.8); }
+                          }
+          
+          # NFC West Division Focus
+          - type: custom:button-card
+            name: NFC West Standings
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 20px 0 8px 0
+              name:
+                - justify-self: center
+                - font-weight: 800
+                - font-size: 24px
+                - letter-spacing: 2px
+                - color: var(--accent-color)
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 2
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_sf
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: ha-card{box-shadow:0 4px 14px rgba(0,0,0,.35)}
+                - entity_id: sensor.nfl_sea
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border: 2px solid #69BE28;
+                          filter: saturate(1.05);
+                        }
+                - entity_id: sensor.nfl_lar
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: ha-card{box-shadow:0 4px 14px rgba(0,0,0,.35)}
+                - entity_id: sensor.nfl_ari
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: ha-card{box-shadow:0 4px 14px rgba(0,0,0,.35)}
+            unique: true
+
+  # View 2: Live Games
+  - title: 🔴 Live Games
+    path: live-games
+    icon: mdi:television-play
+    badges: []
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: custom:button-card
+            name: 🔴 Live & Today's Games
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 8px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 28px
+                - letter-spacing: 3px
+                - color: "#FF0000"
+                - text-shadow: 0 1px 6px rgba(0,0,0,0.45)
+          
+          # Live Games Filter
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 2
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_*
+                  state: In
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 2px solid #FF0000;
+                          box-shadow: 0 0 20px rgba(255,0,0,.6);
+                          animation: pulse-red 1.5s infinite;
+                        }
+                        @keyframes pulse-red {
+                          0% { box-shadow: 0 0 20px rgba(255,0,0,.6); }
+                          50% { box-shadow: 0 0 30px rgba(255,0,0,.9); }
+                          100% { box-shadow: 0 0 20px rgba(255,0,0,.6); }
+                        }
+            unique: true
+          
+          # Pre-Game (Today's upcoming games)
+          - type: custom:button-card
+            name: 📅 Today's Upcoming
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#FFA500"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 2
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_*
+                  state: Pre
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 2px solid #FFA500;
+                          box-shadow: 0 0 15px rgba(255,165,0,.4);
+                        }
+            unique: true
+          
+          # Recently Finished Games  
+          - type: custom:button-card
+            name: ✅ Recently Finished
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#32CD32"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 2
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_*
+                  state: Final
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 1px solid #32CD32;
+                          box-shadow: 0 0 10px rgba(50,205,50,.3);
+                          opacity: 0.95;
+                        }
+            unique: true
+
+  # View 3: Standings
+  - title: 📊 Standings
+    path: standings
+    icon: mdi:trophy
+    badges: []
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: custom:button-card
+            name: 🏈 NFL STANDINGS 2025
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 8px 0 16px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 32px
+                - letter-spacing: 4px
+                - color: var(--accent-color)
+                - text-shadow: 0 1px 6px rgba(0,0,0,0.45)
+          
+          # NFC Conference Header
+          - type: custom:button-card
+            name: 🏈 NFC
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #1f4e79, #2c5aa0)
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+                - border-radius: 12px
+                - padding: 8px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 36px
+                - letter-spacing: 4px
+                - color: white
+                - text-shadow: 0 2px 4px rgba(0,0,0,0.7)
+          
+          # NFC West
+          - type: custom:button-card
+            name: NFC West
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#1f4e79"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_sf
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #AA0000;
+                        }
+                - entity_id: sensor.nfl_sea
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border: 3px solid #69BE28;
+                          border-left: 6px solid #69BE28;
+                          filter: saturate(1.1);
+                          transform: scale(1.01);
+                        }
+                - entity_id: sensor.nfl_lar
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #003594;
+                        }
+                - entity_id: sensor.nfl_ari
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #97233F;
+                        }
+            unique: true
+            
+          # NFC North
+          - type: custom:button-card
+            name: NFC North
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#1f4e79"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_gb
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #203731;
+                        }
+                - entity_id: sensor.nfl_min
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #4F2683;
+                        }
+                - entity_id: sensor.nfl_det
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0076B6;
+                        }
+                - entity_id: sensor.nfl_chi
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0B162A;
+                        }
+            unique: true
+
+          # NFC East  
+          - type: custom:button-card
+            name: NFC East
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#1f4e79"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_phi
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #004C54;
+                        }
+                - entity_id: sensor.nfl_dal
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #003594;
+                        }
+                - entity_id: sensor.nfl_nyg
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0B2265;
+                        }
+                - entity_id: sensor.nfl_was
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #5A1414;
+                        }
+            unique: true
+
+          # NFC South
+          - type: custom:button-card
+            name: NFC South
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#1f4e79"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_tb
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #D50A0A;
+                        }
+                - entity_id: sensor.nfl_no
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #D3BC8D;
+                        }
+                - entity_id: sensor.nfl_atl
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #A71930;
+                        }
+                - entity_id: sensor.nfl_car
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0085CA;
+                        }
+            unique: true
+
+          # AFC Conference Header
+          - type: custom:button-card
+            name: 🏈 AFC
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #8B0000, #DC143C)
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+                - border-radius: 12px
+                - padding: 8px 0
+                - margin: 20px 0 8px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 36px
+                - letter-spacing: 4px
+                - color: white
+                - text-shadow: 0 2px 4px rgba(0,0,0,0.7)
+
+          # AFC West
+          - type: custom:button-card
+            name: AFC West
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#8B0000"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_kc
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #E31837;
+                        }
+                - entity_id: sensor.nfl_lac
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0080C6;
+                        }
+                - entity_id: sensor.nfl_lv
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #000000;
+                        }
+                - entity_id: sensor.nfl_den
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #FB4F14;
+                        }
+            unique: true
+
+          # AFC North
+          - type: custom:button-card
+            name: AFC North
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#8B0000"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_pit
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #FFB612;
+                        }
+                - entity_id: sensor.nfl_bal
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #241773;
+                        }
+                - entity_id: sensor.nfl_cle
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #311D00;
+                        }
+                - entity_id: sensor.nfl_cin
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #FB4F14;
+                        }
+            unique: true
+
+          # AFC East
+          - type: custom:button-card
+            name: AFC East
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#8B0000"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_buf
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #00338D;
+                        }
+                - entity_id: sensor.nfl_mia
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #008E97;
+                        }
+                - entity_id: sensor.nfl_nyj
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #125740;
+                        }
+                - entity_id: sensor.nfl_ne
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #002244;
+                        }
+            unique: true
+
+          # AFC South
+          - type: custom:button-card
+            name: AFC South
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 8px 0
+              name:
+                - justify-self: start
+                - font-weight: 800
+                - font-size: 20px
+                - letter-spacing: 1px
+                - color: "#8B0000"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_jax
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #006778;
+                        }
+                - entity_id: sensor.nfl_hou
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #03202F;
+                        }
+                - entity_id: sensor.nfl_ind
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #002C5F;
+                        }
+                - entity_id: sensor.nfl_ten
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                          border-left: 4px solid #0C2340;
+                        }
+            unique: true
+
+  # View 4: Playoff Picture
+  - title: 🏆 Playoffs
+    path: playoffs
+    icon: mdi:trophy-award
+    badges: []
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: custom:button-card
+            name: 🏆 PLAYOFF PICTURE
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #FFD700, #FFA500)
+                - box-shadow: 0 6px 12px rgba(0,0,0,.4)
+                - border-radius: 12px
+                - padding: 12px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 32px
+                - letter-spacing: 4px
+                - color: "#000000"
+                - text-shadow: 0 2px 4px rgba(255,255,255,0.3)
+          
+          # NFC Playoff Picture
+          - type: custom:button-card
+            name: 🏈 NFC Playoff Race
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #1f4e79, #2c5aa0)
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+                - border-radius: 8px
+                - padding: 8px 0
+                - margin: 16px 0 8px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 800
+                - font-size: 24px
+                - letter-spacing: 2px
+                - color: white
+                - text-shadow: 0 1px 3px rgba(0,0,0,0.5)
+          
+          # Top NFC Teams (Playoff Bound)
+          - type: custom:button-card
+            name: "🎯 Division Leaders"
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 8px 0 4px 0
+              name:
+                - justify-self: start
+                - font-weight: 700
+                - font-size: 18px
+                - color: "#FFD700"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                # Top team from each NFC division - you'd need template sensors for this
+                - entity_id: sensor.nfl_phi  # Example - would be dynamic based on standings
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+                - entity_id: sensor.nfl_det  # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+                - entity_id: sensor.nfl_sea  # Your team!
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #69BE28;
+                          box-shadow: 0 0 25px rgba(105,190,40,.8);
+                          transform: scale(1.05);
+                          filter: saturate(1.2);
+                        }
+                - entity_id: sensor.nfl_tb  # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+            unique: true
+          
+          # Wild Card Race
+          - type: custom:button-card
+            name: "🎲 Wild Card Race"
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 12px 0 4px 0
+              name:
+                - justify-self: start
+                - font-weight: 700
+                - font-size: 18px
+                - color: "#C0C0C0"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 3
+              square: false
+            card_param: cards
+            filter:
+              include:
+                # Wild card contenders - would be dynamic
+                - entity_id: sensor.nfl_gb
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 2px solid #C0C0C0;
+                          box-shadow: 0 0 15px rgba(192,192,192,.4);
+                        }
+                - entity_id: sensor.nfl_min
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 2px solid #C0C0C0;
+                          box-shadow: 0 0 15px rgba(192,192,192,.4);
+                        }
+                - entity_id: sensor.nfl_was
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 2px solid #C0C0C0;
+                          box-shadow: 0 0 15px rgba(192,192,192,.4);
+                        }
+            unique: true
+
+          # AFC Playoff Picture  
+          - type: custom:button-card
+            name: 🏈 AFC Playoff Race
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #8B0000, #DC143C)
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+                - border-radius: 8px
+                - padding: 8px 0
+                - margin: 20px 0 8px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 800
+                - font-size: 24px
+                - letter-spacing: 2px
+                - color: white
+                - text-shadow: 0 1px 3px rgba(0,0,0,0.5)
+
+          # AFC Division Leaders
+          - type: custom:button-card
+            name: "🎯 Division Leaders"
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: transparent
+                - box-shadow: none
+                - padding: 8px 0 4px 0
+              name:
+                - justify-self: start
+                - font-weight: 700
+                - font-size: 18px
+                - color: "#FFD700"
+          
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.nfl_buf  # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+                - entity_id: sensor.nfl_pit  # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+                - entity_id: sensor.nfl_hou  # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+                - entity_id: sensor.nfl_kc   # Example
+                  options:
+                    type: custom:teamtracker-card
+                    outline: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: 3px solid #FFD700;
+                          box-shadow: 0 0 20px rgba(255,215,0,.6);
+                          transform: scale(1.02);
+                        }
+            unique: true
+
+  # View 5: Stats & Cool Stuff
+  - title: 📈 Stats
+    path: stats
+    icon: mdi:chart-line
+    badges: []
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: custom:button-card
+            name: 📈 NFL STATS CENTER
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(45deg, #4B0082, #8A2BE2)
+                - box-shadow: 0 6px 12px rgba(0,0,0,.4)
+                - border-radius: 12px
+                - padding: 12px 0
+              name:
+                - justify-self: center
+                - text-transform: uppercase
+                - font-weight: 900
+                - font-size: 32px
+                - letter-spacing: 4px
+                - color: white
+                - text-shadow: 0 2px 4px rgba(0,0,0,0.7)
+
+          # Quick Stats Grid
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:button-card
+                name: "🔥 Hot Teams"
+                show_icon: false
+                tap_action:
+                  action: none
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, #FF6B35, #F7931E)
+                    - border-radius: 12px
+                    - padding: 16px 0
+                    - box-shadow: 0 4px 8px rgba(0,0,0,.2)
+                  name:
+                    - font-weight: 800
+                    - font-size: 18px
+                    - color: white
+                    - text-shadow: 0 1px 2px rgba(0,0,0,0.5)
+              
+              - type: custom:button-card
+                name: "❄️ Cold Teams"
+                show_icon: false
+                tap_action:
+                  action: none
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, #74b9ff, #0984e3)
+                    - border-radius: 12px
+                    - padding: 16px 0
+                    - box-shadow: 0 4px 8px rgba(0,0,0,.2)
+                  name:
+                    - font-weight: 800
+                    - font-size: 18px
+                    - color: white
+                    - text-shadow: 0 1px 2px rgba(0,0,0,0.5)
+
+              - type: custom:button-card
+                name: "⚡ Highest Scoring"
+                show_icon: false
+                tap_action:
+                  action: none
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, #FDCB6E, #E17055)
+                    - border-radius: 12px
+                    - padding: 16px 0
+                    - box-shadow: 0 4px 8px rgba(0,0,0,.2)
+                  name:
+                    - font-weight: 800
+                    - font-size: 18px
+                    - color: white
+                    - text-shadow: 0 1px 2px rgba(0,0,0,0.5)
+
+              - type: custom:button-card
+                name: "🛡️ Best Defense"
+                show_icon: false
+                tap_action:
+                  action: none
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, #00b894, #00cec9)
+                    - border-radius: 12px
+                    - padding: 16px 0
+                    - box-shadow: 0 4px 8px rgba(0,0,0,.2)
+                  name:
+                    - font-weight: 800
+                    - font-size: 18px
+                    - color: white
+                    - text-shadow: 0 1px 2px rgba(0,0,0,0.5)
+
+          # Seahawks Advanced Stats
+          - type: custom:button-card
+            name: "📊 Seahawks Deep Dive"
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(135deg, #69BE28, #4CAF50)
+                - border-radius: 12px
+                - padding: 12px 0
+                - margin: 16px 0 8px 0
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+              name:
+                - font-weight: 800
+                - font-size: 24px
+                - color: white
+                - text-shadow: 0 1px 3px rgba(0,0,0,0.5)
+
+          # Seahawks detailed card with more info
+          - type: custom:teamtracker-card
+            entity: sensor.nfl_sea
+            outline: true
+            card_mod:
+              style: |
+                ha-card {
+                  border: 3px solid #69BE28;
+                  box-shadow: 0 0 30px rgba(105,190,40,.8);
+                  transform: scale(1.03);
+                  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+                }
+
+          # Week's Best Matchups
+          - type: custom:button-card
+            name: "🎯 Must-Watch Games"
+            show_icon: false
+            tap_action:
+              action: none
+            styles:
+              card:
+                - background: linear-gradient(135deg, #e17055, #d63031)
+                - border-radius: 12px
+                - padding: 12px 0
+                - margin: 16px 0 8px 0
+                - box-shadow: 0 4px 8px rgba(0,0,0,.3)
+              name:
+                - font-weight: 800
+                - font-size: 20px
+                - color: white
+                - text-shadow: 0 1px 3px rgba(0,0,0,0.5)
+
+          # Featured matchups - you could make these dynamic based on interesting games
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:teamtracker-card
+                entity: sensor.nfl_kc
+                outline: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: 2px solid #E31837;
+                      box-shadow: 0 0 15px rgba(227,24,55,.5);
+                    }
+              - type: custom:teamtracker-card
+                entity: sensor.nfl_buf
+                outline: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: 2px solid #00338D;
+                      box-shadow: 0 0 15px rgba(0,51,141,.5);
+                    }

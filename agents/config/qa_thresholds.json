@@ -1,0 +1,44 @@
+{
+  "thresholds": [
+    {
+      "name": "Total Power",
+      "entity_id": "sensor.total_power",
+      "min": 0,
+      "max": 10000,
+      "unit": "W",
+      "critical": true
+    },
+    {
+      "name": "Printer Power",
+      "entity_id": "sensor.bambu_printer_power",
+      "min": 0,
+      "max": 500,
+      "unit": "W",
+      "critical": false
+    },
+    {
+      "name": "Internet Ping",
+      "entity_id": "sensor.speedtest_ping",
+      "min": 0,
+      "max": 200,
+      "unit": "ms",
+      "critical": false
+    },
+    {
+      "name": "Download Speed",
+      "entity_id": "sensor.speedtest_download",
+      "min": 0,
+      "max": 10000,
+      "unit": "Mbit/s",
+      "critical": false
+    },
+    {
+      "name": "Daily Cost",
+      "entity_id": "sensor.daily_energy_cost",
+      "min": 0,
+      "max": 100,
+      "unit": "$",
+      "critical": false
+    }
+  ]
+}

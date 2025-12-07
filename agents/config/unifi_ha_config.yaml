@@ -1,0 +1,27 @@
+
+# UniFi NOC Integration Configuration
+
+rest_command:
+  unifi_set_poe:
+    url: "https://{{ host }}/proxy/network/api/s/{{ site }}/rest/device/{{ device_id }}"
+    method: PUT
+    verify_ssl: false
+    payload: '{"port_overrides":[{"port_idx":{{ port }},"poe_mode":"{{ mode }}"}]}'
+
+  unifi_restart_device:
+    url: "https://{{ host }}/proxy/network/api/s/{{ site }}/cmd/devmgr"
+    method: POST
+    verify_ssl: false
+    payload: '{"cmd":"restart","mac":"{{ mac }}"}'
+
+script:
+  unifi_toggle_poe:
+    alias: "Toggle PoE on Port"
+    sequence:
+      - service: rest_command.unifi_set_poe
+        data:
+          host: !secret unifi_host
+          site: "default"
+          device_id: !secret unifi_switch_id
+          port: "{{ port }}"
+          mode: "{{ mode }}"

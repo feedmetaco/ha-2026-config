@@ -1,0 +1,200 @@
+{
+  "dashboard": {
+    "title": "\ud83c\udfe0 NOC Overview - Your 2,479 Entities",
+    "uid": "noc-overview-main",
+    "tags": [
+      "noc",
+      "overview",
+      "master-agent"
+    ],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Entities",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 0,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "none",
+          "textMode": "value_and_name",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(DISTINCT entity_id) FROM states",
+            "format": "table",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 2000
+                },
+                {
+                  "color": "red",
+                  "value": 3000
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Sensors",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 4,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) FROM states WHERE entity_id LIKE 'sensor.%'",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisPlacement": "auto"
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Switches",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 8,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) FROM states WHERE entity_id LIKE 'switch.%'",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Cameras",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 12,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) FROM states WHERE entity_id LIKE 'camera.%'",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Automations",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 16,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) FROM states WHERE entity_id LIKE 'automation.%'",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "System Health",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 20,
+          "y": 0
+        },
+        "options": {
+          "graphMode": "none",
+          "textMode": "name",
+          "colorMode": "background"
+        },
+        "targets": [
+          {
+            "rawSql": "SELECT 'HEALTHY' as health",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "value": "HEALTHY",
+                "text": "\u2705 HEALTHY"
+              }
+            ],
+            "color": {
+              "mode": "fixed",
+              "fixedColor": "green"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

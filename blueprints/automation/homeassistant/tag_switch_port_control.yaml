@@ -1,0 +1,212 @@
+blueprint:
+  name: Tag -> Switch Port Control (On/Off/Cancel with verification)
+  description: >-
+    When a specified NFC tag is scanned, send an actionable notification to a mobile
+    app device with options to turn selected switch ports On, Off, or Cancel.
+    After performing the action, wait a configurable delay and verify the final
+    state. Sends a follow-up confirmation message with the result.
+  domain: automation
+  author: Cursor Assistant
+  source_url: https://example.com/blueprints/tag_switch_port_control
+  input:
+    tag_id:
+      name: NFC Tag
+      description: Tag that will trigger this automation
+      selector:
+        text:
+    notify_device:
+      name: Device to notify
+      description: Device must use the official Home Assistant mobile app
+      selector:
+        device:
+          filter:
+            integration: mobile_app
+    switches:
+      name: Switch ports
+      description: One or more switch entities to control
+      selector:
+        target:
+          entity:
+            domain: switch
+    notification_title:
+      name: Notification title
+      default: "Switch Port Control"
+      selector:
+        text:
+    notification_message:
+      name: Notification message
+      default: "Choose an action for the selected ports."
+      selector:
+        text:
+    extra_entities:
+      name: Extra entities to include in the notification (optional)
+      description: Select any entities whose name and state you want appended to the notification (e.g., iPhone sensors like Battery, Connection, SSID)
+      default: {}
+      selector:
+        target:
+          entity:
+            
+    verify_delay:
+      name: Verification delay
+      description: Time to wait before verifying the final switch state
+      default: 00:00:15
+      selector:
+        duration:
+
+    sticky_prompt:
+      name: Make the actionable notification sticky
+      description: Keeps the prompt visible until you choose an action (useful for larger/longer prompts)
+      default: true
+      selector:
+        boolean:
+
+mode: single
+
+max_exceeded: silent
+
+trigger:
+  - platform: tag
+    tag_id: !input tag_id
+
+action:
+  - alias: Define dynamic action identifiers
+    variables:
+      action_on: "TURN_ON_{{ context.id }}"
+      action_off: "TURN_OFF_{{ context.id }}"
+      action_cancel: "CANCEL_{{ context.id }}"
+      target_switches: !input switches
+      extra: !input extra_entities
+      base_message: !input notification_message
+      switch_ids: >-
+        {{ (target_switches.entity_id if target_switches is defined and target_switches.entity_id is not none else [])
+           | unique | list }}
+      extra_ids: >-
+        {{ (extra.entity_id if extra is defined and extra.entity_id is not none else [])
+           | unique | list }}
+
+  - alias: Send actionable notification
+    domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: !input notification_title
+    message: >-
+      {{ base_message }}
+      
+      Selected ports:
+      {%- for entity in expand(switch_ids) %}
+      • {{ entity.name }}: {{ entity.state }}
+      {%- endfor %}
+      {%- if (extra_ids | count) > 0 %}
+      
+      Extra info:
+      {%- for entity in expand(extra_ids) %}
+      • {{ entity.name }}: {{ entity.state }}
+      {%- endfor %}
+      {%- endif %}
+    data:
+      sticky: !input sticky_prompt
+      ttl: 0
+      priority: high
+      channel: "Switch Control"
+      actions:
+        - action: "{{ action_on }}"
+          title: "Turn On"
+        - action: "{{ action_off }}"
+          title: "Turn Off"
+        - action: "{{ action_cancel }}"
+          title: "Cancel"
+
+  - alias: Wait for user choice
+    wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "{{ action_on }}"
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "{{ action_off }}"
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "{{ action_cancel }}"
+    timeout: 00:01:00
+    continue_on_timeout: false
+
+  - choose:
+      - alias: Cancel pressed
+        conditions: "{{ wait.trigger.event.data.action == action_cancel }}"
+        sequence:
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            title: "Action canceled"
+            message: "No changes were made to the selected ports."
+
+      - alias: Turn ON pressed
+        conditions: "{{ wait.trigger.event.data.action == action_on }}"
+        sequence:
+          - repeat:
+              for_each: "{{ switch_ids }}"
+              sequence:
+                - target:
+                    entity_id: "{{ repeat.item }}"
+                  action: switch.turn_on
+          - delay: !input verify_delay
+          - choose:
+              - alias: All ports are ON
+                conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ expand(switch_ids)
+                         | selectattr('state', '!=', 'on') | list | count == 0 }}
+                sequence:
+                  - domain: mobile_app
+                    type: notify
+                    device_id: !input notify_device
+                    title: "✅ Ports turned ON"
+                    message: "All selected ports are now ON."
+            default:
+              - domain: mobile_app
+                type: notify
+                device_id: !input notify_device
+                title: "⚠️ Verification failed"
+                message: >-
+                  Some ports are not ON after the action.
+                  ON: {{ expand(switch_ids) | selectattr('state','==','on') | map(attribute='name') | list | join(', ') or 'none' }};
+                  OFF: {{ expand(switch_ids) | rejectattr('state','==','on') | map(attribute='name') | list | join(', ') or 'none' }}
+
+      - alias: Turn OFF pressed
+        conditions: "{{ wait.trigger.event.data.action == action_off }}"
+        sequence:
+          - repeat:
+              for_each: "{{ switch_ids }}"
+              sequence:
+                - target:
+                    entity_id: "{{ repeat.item }}"
+                  action: switch.turn_off
+          - delay: !input verify_delay
+          - choose:
+              - alias: All ports are OFF
+                conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ expand(switch_ids)
+                         | selectattr('state', '!=', 'off') | list | count == 0 }}
+                sequence:
+                  - domain: mobile_app
+                    type: notify
+                    device_id: !input notify_device
+                    title: "✅ Ports turned OFF"
+                    message: "All selected ports are now OFF."
+            default:
+              - domain: mobile_app
+                type: notify
+                device_id: !input notify_device
+                title: "⚠️ Verification failed"
+                message: >-
+                  Some ports are not OFF after the action.
+                  OFF: {{ expand(switch_ids) | selectattr('state','==','off') | map(attribute='name') | list | join(', ') or 'none' }};
+                  ON: {{ expand(switch_ids) | rejectattr('state','==','off') | map(attribute='name') | list | join(', ') or 'none' }}
+
+

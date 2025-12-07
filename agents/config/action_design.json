@@ -1,0 +1,47 @@
+{
+  "severity_levels": {
+    "LOW": {
+      "confirmation": false,
+      "cooldown": "30-60s"
+    },
+    "MEDIUM": {
+      "confirmation": true,
+      "cooldown": "2-5 min"
+    },
+    "HIGH": {
+      "confirmation": true,
+      "cooldown": "10+ min"
+    },
+    "CRITICAL": {
+      "confirmation": "Full phrase",
+      "cooldown": "30+ min"
+    }
+  },
+  "actions": {
+    "port_bounce": {
+      "description": "Bounce switch port",
+      "severity": "medium",
+      "required_role": "operator"
+    },
+    "poe_toggle": {
+      "description": "Toggle PoE power",
+      "severity": "medium",
+      "required_role": "operator"
+    },
+    "service_restart": {
+      "description": "Restart HA service",
+      "severity": "medium",
+      "required_role": "operator"
+    },
+    "device_reboot": {
+      "description": "Reboot device",
+      "severity": "high",
+      "required_role": "admin"
+    },
+    "network_stack_reboot": {
+      "description": "Reboot entire stack",
+      "severity": "critical",
+      "required_role": "admin"
+    }
+  }
+}

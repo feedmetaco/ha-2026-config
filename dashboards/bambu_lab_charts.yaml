@@ -1,0 +1,339 @@
+title: Bambu Lab Analytics
+icon: mdi:printer-3d
+views:
+  - title: Power & Cost Analytics
+    path: analytics
+    icon: mdi:chart-line
+    cards:
+      # Live Status Header - Compact
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: sensor.print_status
+            name: Status
+            icon: mdi:printer-3d
+            primary_info: state
+            fill_container: true
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.bambu_lab_power
+            name: Power Now
+            icon: mdi:flash
+            icon_color: amber
+            primary_info: state
+            fill_container: true
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.bambu_lab_cost_rate
+            name: Cost Rate
+            icon: mdi:currency-usd
+            icon_color: green
+            primary_info: state
+            fill_container: true
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.bambu_lab_current_print_cost
+            name: This Print
+            icon: mdi:currency-usd-circle
+            icon_color: blue
+            primary_info: state
+            fill_container: true
+
+      # CHART 1: Power Usage History (24 Hours)
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "⚡ Power Usage - Last 24 Hours"
+          show_states: true
+        graph_span: 24h
+        update_interval: 30s
+        span:
+          start: day
+        series:
+          - entity: sensor.bambu_lab_power
+            name: Power Draw
+            stroke_width: 3
+            type: line
+            curve: smooth
+            color: "#ffc107"
+            opacity: 1
+            show:
+              legend_value: true
+          - entity: sensor.print_progress
+            name: Print Progress
+            stroke_width: 2
+            type: area
+            curve: stepline
+            color: "#2196f3"
+            opacity: 0.2
+            yaxis_id: progress
+        yaxis:
+          - id: power
+            min: 0
+            max: ~300
+            apex_config:
+              title:
+                text: "Power (W)"
+              labels:
+                formatter: |
+                  EVAL:function(val) { return val.toFixed(0) + ' W'; }
+          - id: progress
+            opposite: true
+            min: 0
+            max: 100
+            apex_config:
+              title:
+                text: "Progress (%)"
+        apex_config:
+          annotations:
+            yaxis:
+              - y: 250
+                borderColor: "#ff9800"
+                label:
+                  text: "Heating Phase"
+                  style:
+                    color: "#fff"
+                    background: "#ff9800"
+              - y: 150
+                borderColor: "#4caf50"
+                label:
+                  text: "Active Printing"
+                  style:
+                    color: "#fff"
+                    background: "#4caf50"
+
+      # CHART 2: Energy Consumption (7 Days) - Cumulative
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "📊 Energy Consumption - Last 7 Days"
+        graph_span: 7d
+        span:
+          start: week
+        series:
+          - entity: sensor.bambu_lab_energy
+            name: Cumulative Energy
+            stroke_width: 3
+            type: area
+            curve: smooth
+            color: "#4caf50"
+            opacity: 0.3
+            show:
+              in_header: true
+              legend_value: true
+        apex_config:
+          yaxis:
+            labels:
+              formatter: |
+                EVAL:function(val) { return val.toFixed(2) + ' kWh'; }
+          chart:
+            height: 280px
+
+      # CHART 3: Cost Analysis (30 Days) - Daily Bars + Cumulative Line
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "💰 Cost Analysis - Last 30 Days"
+        graph_span: 30d
+        span:
+          start: month
+        series:
+          - entity: sensor.bambu_lab_cost_today
+            name: Daily Cost
+            type: column
+            color: "#2196f3"
+            opacity: 0.6
+            group_by:
+              func: last
+              duration: 1d
+          - entity: sensor.bambu_lab_cost_this_month
+            name: Monthly Total
+            stroke_width: 3
+            type: line
+            curve: smooth
+            color: "#f44336"
+            opacity: 1
+        apex_config:
+          yaxis:
+            labels:
+              formatter: |
+                EVAL:function(val) { return '$' + val.toFixed(2); }
+          chart:
+            height: 300px
+
+      # CHART 4: Print Efficiency - Runtime vs Cost
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "📈 Print Efficiency - Runtime vs Energy"
+        graph_span: 7d
+        series:
+          - entity: sensor.bambu_lab_printing_today
+            name: Daily Runtime
+            type: column
+            color: "#9c27b0"
+            opacity: 0.6
+            group_by:
+              func: last
+              duration: 1d
+          - entity: sensor.bambu_lab_energy_daily
+            name: Daily Energy
+            type: line
+            stroke_width: 3
+            color: "#ffc107"
+            yaxis_id: energy
+        yaxis:
+          - id: runtime
+            apex_config:
+              title:
+                text: "Runtime (hours)"
+          - id: energy
+            opposite: true
+            apex_config:
+              title:
+                text: "Energy (kWh)"
+
+      # CHART 5: Temperature Correlation During Prints
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "🌡️ Temperature & Power Correlation - Last 12 Hours"
+        graph_span: 12h
+        series:
+          - entity: sensor.nozzle_temp
+            name: Nozzle Temp
+            stroke_width: 2
+            type: line
+            curve: smooth
+            color: "#f44336"
+          - entity: sensor.bed_temp
+            name: Bed Temp
+            stroke_width: 2
+            type: line
+            curve: smooth
+            color: "#ff9800"
+          - entity: sensor.chamber_temp
+            name: Chamber Temp
+            stroke_width: 2
+            type: line
+            curve: smooth
+            color: "#4caf50"
+          - entity: sensor.bambu_lab_power
+            name: Power Draw
+            stroke_width: 3
+            type: area
+            curve: smooth
+            color: "#ffc107"
+            opacity: 0.2
+            yaxis_id: power
+        yaxis:
+          - id: temp
+            apex_config:
+              title:
+                text: "Temperature (°C)"
+          - id: power
+            opposite: true
+            min: 0
+            max: ~300
+            apex_config:
+              title:
+                text: "Power (W)"
+
+      # CHART 6: Monthly Cost Breakdown - Pie Chart
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: "🥧 Cost Breakdown - This Month"
+        chart_type: donut
+        series:
+          - entity: sensor.bambu_lab_cost_this_month
+            name: Bambu Lab
+            color: "#2196f3"
+          - entity: sensor.estimated_power_cost
+            name: Total Infrastructure
+            color: "#9c27b0"
+        apex_config:
+          chart:
+            height: 280px
+          legend:
+            show: true
+            position: bottom
+
+      # Cost Statistics Grid
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, 1fr)
+          gap: 12px
+        cards:
+          - type: statistic
+            entity: sensor.bambu_lab_cost_today
+            name: Today
+            icon: mdi:calendar-today
+
+          - type: statistic
+            entity: sensor.bambu_lab_cost_this_week
+            name: This Week
+            icon: mdi:calendar-week
+
+          - type: statistic
+            entity: sensor.bambu_lab_cost_this_month
+            name: This Month
+            icon: mdi:calendar-month
+
+          - type: statistic
+            entity: sensor.bambu_lab_projected_monthly_cost
+            name: Projected
+            icon: mdi:chart-line-variant
+
+      # Runtime & Efficiency Stats
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(3, 1fr)
+          gap: 12px
+        cards:
+          - type: statistic
+            entity: sensor.bambu_lab_printing_today
+            name: Print Time Today
+            icon: mdi:clock-time-eight
+
+          - type: statistic
+            entity: sensor.bambu_lab_printing_this_week
+            name: Print Time Week
+            icon: mdi:calendar-week
+
+          - type: statistic
+            entity: sensor.total_usage_hours
+            name: Total Runtime
+            icon: mdi:timer
+
+      # Temperature & System Status (Minimal)
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.bed_temp
+            name: Bed
+            min: 0
+            max: 120
+            needle: true
+
+          - type: gauge
+            entity: sensor.nozzle_temp
+            name: Nozzle
+            min: 0
+            max: 300
+            needle: true
+
+          - type: gauge
+            entity: sensor.chamber_temp
+            name: Chamber
+            min: 0
+            max: 65
+            needle: true
+
+          - type: gauge
+            entity: sensor.print_progress
+            name: Progress
+            min: 0
+            max: 100
+            needle: true
+

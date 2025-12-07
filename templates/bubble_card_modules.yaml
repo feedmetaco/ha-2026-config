@@ -1,0 +1,14 @@
+# Storage for Bubble Card Modules
+# /config/templates/bubble_card_modules.yaml
+
+- trigger:
+    - platform: event
+      event_type: bubble_card_update_modules
+  sensor:
+    - name: "Bubble Card Modules"
+      unique_id: bubble_card_modules
+      state: "saved" # static; data is stored in attributes
+      icon: mdi:puzzle
+      attributes:
+        modules: "{{ trigger.event.data.modules | default([], true) }}"
+        last_updated: "{{ trigger.event.data.last_updated | default(now()) }}"

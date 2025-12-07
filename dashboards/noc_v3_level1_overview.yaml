@@ -1,0 +1,434 @@
+title: NOC V3 Command Center
+icon: mdi:monitor-dashboard
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:view-dashboard-variant
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          # System Health Hero Section
+          - type: custom:button-card
+            name: " "
+            styles:
+              card:
+                - background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(138, 43, 226, 0.15))
+                - backdrop-filter: blur(30px)
+                - border: 2px solid rgba(0, 217, 255, 0.3)
+                - border-radius: 24px
+                - padding: 32px
+                - box-shadow: 0 8px 32px rgba(0, 217, 255, 0.2)
+            custom_fields:
+              health_score: |
+                [[[ 
+                  const score = states['sensor.noc_system_health_score'].state;
+                  const rating = states['sensor.noc_system_health_score'].attributes.rating;
+                  let color = '#4caf50';
+                  if (score < 70) color = '#ff9800';
+                  if (score < 50) color = '#f44336';
+                  return `
+                    <div style="text-align: center;">
+                      <div style="font-size: 64px; font-weight: 800; color: ${color};">${score}%</div>
+                      <div style="font-size: 24px; opacity: 0.8; margin-top: 8px;">System Health: ${rating}</div>
+                      <div style="font-size: 14px; opacity: 0.6; margin-top: 16px;">Network Operations Center V3 • Real-time Monitoring</div>
+                    </div>
+                  `;
+                ]]]
+
+          # Quick Stats Grid (6 Cards)
+          - type: custom:grid-layout
+            layout:
+              grid-template-columns: repeat(3, 1fr)
+              gap: 16px
+            cards:
+              # Power
+              - type: custom:button-card
+                entity: sensor.total_power_consumption
+                name: Total Power
+                show_state: true
+                show_icon: true
+                icon: mdi:flash-triangle
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1))
+                    - border-left: 4px solid #ffc107
+                    - padding: 20px
+                  icon:
+                    - color: "#ffc107"
+                  state:
+                    - font-size: 28px
+                    - font-weight: 700
+                custom_fields:
+                  cost: |
+                    [[[ 
+                      const cost = states['sensor.estimated_power_cost'].state;
+                      return `<div style="font-size: 13px; opacity: 0.7; margin-top: 8px;">$${cost}/month</div>`;
+                    ]]]
+
+              # Active Devices
+              - type: custom:button-card
+                entity: sensor.active_devices_count
+                name: Active Devices
+                show_state: true
+                show_icon: true
+                icon: mdi:devices
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(67, 160, 71, 0.1))
+                    - border-left: 4px solid #4caf50
+                    - padding: 20px
+                  icon:
+                    - color: "#4caf50"
+                  state:
+                    - font-size: 28px
+                    - font-weight: 700
+
+              # Network Uptime
+              - type: custom:button-card
+                entity: sensor.network_uptime_percent
+                name: Network Uptime
+                show_state: true
+                show_icon: true
+                icon: mdi:network-check
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(30, 136, 229, 0.1))
+                    - border-left: 4px solid #2196f3
+                    - padding: 20px
+                  icon:
+                    - color: "#2196f3"
+                  state:
+                    - font-size: 28px
+                    - font-weight: 700
+
+              # Internet Health
+              - type: custom:button-card
+                name: Internet Health
+                show_icon: true
+                icon: mdi:wan
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:internet"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 168, 204, 0.1))
+                    - border-left: 4px solid #00d9ff
+                    - padding: 20px
+                    - cursor: pointer
+                  icon:
+                    - color: "#00d9ff"
+                custom_fields:
+                  stats: |
+                    [[[ 
+                      const down = states['sensor.wan1_down_mbps']?.state || '0';
+                      const up = states['sensor.wan1_up_mbps']?.state || '0';
+                      return `<div style="font-size: 16px; font-weight: 600;">↓${down} ↑${up} Mbps</div>`;
+                    ]]]
+
+              # DNS Filtering
+              - type: custom:button-card
+                entity: sensor.dns_blocking_efficiency
+                name: DNS Filtering
+                show_state: true
+                show_icon: true
+                icon: mdi:shield-check
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:dns"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(156, 39, 176, 0.15), rgba(142, 36, 170, 0.1))
+                    - border-left: 4px solid #9c27b0
+                    - padding: 20px
+                    - cursor: pointer
+                  icon:
+                    - color: "#9c27b0"
+                  state:
+                    - font-size: 24px
+                custom_fields:
+                  blocked: |
+                    [[[ 
+                      const blocked = states['sensor.dns_total_blocked'].state;
+                      return `<div style="font-size: 13px; opacity: 0.7;">${blocked} blocked</div>`;
+                    ]]]
+
+              # UniFi Infrastructure
+              - type: custom:button-card
+                entity: sensor.unifi_device_availability
+                name: UniFi Infrastructure
+                show_state: true
+                show_icon: true
+                icon: mdi:access-point-network
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:unifi"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(251, 140, 0, 0.1))
+                    - border-left: 4px solid #ff9800
+                    - padding: 20px
+                    - cursor: pointer
+                  icon:
+                    - color: "#ff9800"
+                  state:
+                    - font-size: 24px
+
+          # Section Cards (Clickable Drill-Downs)
+          - type: markdown
+            content: |
+              ## 🔍 Drill Down into Sections
+            style: |
+              ha-card {
+                background: transparent;
+                box-shadow: none;
+                margin: 24px 0 12px 0;
+              }
+
+          - type: custom:grid-layout
+            layout:
+              grid-template-columns: repeat(2, 1fr)
+              gap: 16px
+            cards:
+              # Internet Health Section Card
+              - type: custom:button-card
+                name: Internet Health
+                icon: mdi:web
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:internet"
+                styles:
+                  card:
+                    - background: rgba(26, 35, 45, 0.6)
+                    - backdrop-filter: blur(20px)
+                    - border: 2px solid rgba(0, 217, 255, 0.3)
+                    - border-radius: 20px
+                    - padding: 28px
+                    - cursor: pointer
+                    - transition: all 0.3s
+                  card_hover:
+                    - transform: translateY(-4px)
+                    - box-shadow: 0 12px 40px rgba(0, 217, 255, 0.3)
+                  icon:
+                    - width: 48px
+                    - color: "#00d9ff"
+                  name:
+                    - font-size: 20px
+                    - margin-top: 12px
+                custom_fields:
+                  stats: |
+                    [[[ 
+                      const wan1_down = states['sensor.wan1_down_mbps']?.state || '0';
+                      const wan1_up = states['sensor.wan1_up_mbps']?.state || '0';
+                      const latency = states['sensor.wan1_latency_avg']?.state || '0';
+                      return `
+                        <div style="margin-top: 16px; font-size: 14px; opacity: 0.8;">
+                          <div>↓${wan1_down} Mbps ↑${wan1_up} Mbps</div>
+                          <div style="margin-top: 4px;">Latency: ${latency}ms</div>
+                        </div>
+                      `;
+                    ]]]
+
+              # DNS Filtering Section Card
+              - type: custom:button-card
+                name: DNS Filtering
+                icon: mdi:shield-lock
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:dns"
+                styles:
+                  card:
+                    - background: rgba(26, 35, 45, 0.6)
+                    - backdrop-filter: blur(20px)
+                    - border: 2px solid rgba(156, 39, 176, 0.3)
+                    - border-radius: 20px
+                    - padding: 28px
+                    - cursor: pointer
+                    - transition: all 0.3s
+                  card_hover:
+                    - transform: translateY(-4px)
+                    - box-shadow: 0 12px 40px rgba(156, 39, 176, 0.3)
+                  icon:
+                    - width: 48px
+                    - color: "#9c27b0"
+                  name:
+                    - font-size: 20px
+                    - margin-top: 12px
+                custom_fields:
+                  stats: |
+                    [[[ 
+                      const blocked = states['sensor.dns_total_blocked'].state;
+                      const efficiency = states['sensor.dns_blocking_efficiency'].state;
+                      return `
+                        <div style="margin-top: 16px; font-size: 14px; opacity: 0.8;">
+                          <div>${blocked} Blocked Today</div>
+                          <div style="margin-top: 4px;">${efficiency}% Efficiency</div>
+                        </div>
+                      `;
+                    ]]]
+
+              # UniFi Infrastructure Section Card
+              - type: custom:button-card
+                name: UniFi Infrastructure
+                icon: mdi:network
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:unifi"
+                styles:
+                  card:
+                    - background: rgba(26, 35, 45, 0.6)
+                    - backdrop-filter: blur(20px)
+                    - border: 2px solid rgba(76, 175, 80, 0.3)
+                    - border-radius: 20px
+                    - padding: 28px
+                    - cursor: pointer
+                    - transition: all 0.3s
+                  card_hover:
+                    - transform: translateY(-4px)
+                    - box-shadow: 0 12px 40px rgba(76, 175, 80, 0.3)
+                  icon:
+                    - width: 48px
+                    - color: "#4caf50"
+                  name:
+                    - font-size: 20px
+                    - margin-top: 12px
+                custom_fields:
+                  stats: |
+                    [[[ 
+                      const availability = states['sensor.unifi_device_availability'].state;
+                      const clients = states['sensor.unifi_total_clients'].state;
+                      const poe = states['sensor.unifi_total_poe_power_used'].state;
+                      return `
+                        <div style="margin-top: 16px; font-size: 14px; opacity: 0.8;">
+                          <div>${availability}% Devices Online</div>
+                          <div style="margin-top: 4px;">${clients} Clients • ${poe}W PoE</div>
+                        </div>
+                      `;
+                    ]]]
+
+              # Power Management Section Card
+              - type: custom:button-card
+                name: Power Management
+                icon: mdi:lightning-bolt-circle
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.noc_navigation_level
+                    option: "section:power"
+                styles:
+                  card:
+                    - background: rgba(26, 35, 45, 0.6)
+                    - backdrop-filter: blur(20px)
+                    - border: 2px solid rgba(255, 152, 0, 0.3)
+                    - border-radius: 20px
+                    - padding: 28px
+                    - cursor: pointer
+                    - transition: all 0.3s
+                  card_hover:
+                    - transform: translateY(-4px)
+                    - box-shadow: 0 12px 40px rgba(255, 152, 0, 0.3)
+                  icon:
+                    - width: 48px
+                    - color: "#ff9800"
+                  name:
+                    - font-size: 20px
+                    - margin-top: 12px
+                custom_fields:
+                  stats: |
+                    [[[ 
+                      const power = states['sensor.total_power_consumption'].state;
+                      const cost = states['sensor.estimated_power_cost'].state;
+                      return `
+                        <div style="margin-top: 16px; font-size: 14px; opacity: 0.8;">
+                          <div>${power}W Draw</div>
+                          <div style="margin-top: 4px;">$${cost}/month est.</div>
+                        </div>
+                      `;
+                    ]]]
+
+          # Quick Actions Bar
+          - type: markdown
+            content: |
+              ## ⚡ Quick Actions
+            style: |
+              ha-card {
+                background: transparent;
+                box-shadow: none;
+                margin: 24px 0 12px 0;
+              }
+
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: Reboot Gateway
+                icon: mdi:restart
+                tap_action:
+                  action: call-service
+                  service: script.reboot_gateway
+                  confirmation:
+                    text: "Reboot UDMP-SE gateway? Network will be down ~3 minutes."
+                styles:
+                  card:
+                    - background: rgba(244, 67, 54, 0.1)
+                    - border: 2px solid rgba(244, 67, 54, 0.3)
+                    - padding: 16px
+
+              - type: custom:button-card
+                name: Reboot Core Switch
+                icon: mdi:switch
+                tap_action:
+                  action: call-service
+                  service: script.reboot_core_switch
+                  confirmation:
+                    text: "Reboot core switch? Some network segments will be down."
+                styles:
+                  card:
+                    - background: rgba(255, 152, 0, 0.1)
+                    - border: 2px solid rgba(255, 152, 0, 0.3)
+                    - padding: 16px
+
+              - type: custom:button-card
+                name: Restart DNS
+                icon: mdi:dns
+                tap_action:
+                  action: call-service
+                  service: script.restart_dns_services
+                styles:
+                  card:
+                    - background: rgba(156, 39, 176, 0.1)
+                    - border: 2px solid rgba(156, 39, 176, 0.3)
+                    - padding: 16px
+
+              - type: custom:button-card
+                name: Emergency Off
+                icon: mdi:power-off
+                tap_action:
+                  action: call-service
+                  service: script.preset_emergency_off
+                  confirmation:
+                    text: "EMERGENCY: Shut down all non-critical systems?"
+                styles:
+                  card:
+                    - background: rgba(244, 67, 54, 0.2)
+                    - border: 2px solid rgba(244, 67, 54, 0.5)
+                    - padding: 16px
+

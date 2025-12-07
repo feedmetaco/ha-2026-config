@@ -1,0 +1,12 @@
+{
+  "success": false,
+  "grafana_status": {
+    "installed": false,
+    "error": "API error"
+  },
+  "datasource_configured": false,
+  "dashboards_deployed": [],
+  "manual_steps_required": [
+    "Install Grafana add-on from HA Store"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "title": "UniFi API Capability Map",
+    "version": "1.0.0"
+  },
+  "authentication": {
+    "methods": [
+      {
+        "name": "Local Admin",
+        "endpoint": "/api/auth/login",
+        "recommended": true
+      }
+    ],
+    "best_practices": [
+      "Create dedicated API user",
+      "Use local authentication (not SSO)",
+      "Store credentials in secrets.yaml"
+    ]
+  },
+  "read_capabilities": {
+    "devices": [
+      "Device info (name, model, MAC, IP)",
+      "Uptime and load",
+      "Port table with statistics",
+      "PoE power per port"
+    ],
+    "switch_ports": [
+      "Port status (up/down)",
+      "Speed and duplex",
+      "PoE mode and power (watts)",
+      "RX/TX stats"
+    ],
+    "clients": [
+      "MAC and IP addresses",
+      "Connected switch port",
+      "TX/RX rates"
+    ]
+  },
+  "write_capabilities": {
+    "port_control": {
+      "enable_disable_port": {
+        "field": "port_overrides[].port_security_enabled",
+        "safe": true
+      },
+      "set_poe_mode": {
+        "field": "port_overrides[].poe_mode",
+        "values": [
+          "off",
+          "auto",
+          "pasv24"
+        ],
+        "safe": true
+      }
+    },
+    "device_control": {
+      "restart": {
+        "cmd": "restart",
+        "mac": "<device_mac>"
+      }
+    }
+  },
+  "safe_patterns": {
+    "rate_limiting": "Max 1 write/second",
+    "error_handling": "Exponential backoff",
+    "validation": "Always verify target exists before write"
+  }
+}

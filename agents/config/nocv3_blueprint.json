@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "name": "NOCv3 Dashboard Suite",
+    "version": "1.0.0",
+    "generated": "2025-12-06T20:19:18.811578"
+  },
+  "architecture": {
+    "levels": [
+      "30k_overview",
+      "section_drilldown",
+      "device_drilldown",
+      "port_drilldown"
+    ],
+    "hierarchy": {
+      "overview": [
+        "network",
+        "power",
+        "printer"
+      ]
+    }
+  },
+  "design_principles": [
+    "30k overview at top level",
+    "Progressive drilldowns",
+    "LIVE NOW sections at top",
+    "Historical context (collapsed)",
+    "Consistent color coding"
+  ],
+  "dashboards": {
+    "overview": {
+      "title": "\ud83c\udfe0 NOC Overview",
+      "uid": "noc-overview",
+      "level": "30k_overview",
+      "panel_count": 10
+    },
+    "network": {
+      "title": "\ud83c\udf10 Network - NOC",
+      "uid": "noc-network",
+      "level": "section_drilldown",
+      "panel_count": 4
+    },
+    "power": {
+      "title": "\u26a1 Power - NOC",
+      "uid": "noc-power",
+      "level": "section_drilldown",
+      "panel_count": 6
+    },
+    "printer": {
+      "title": "\ud83d\udda8\ufe0f Bambu Lab - NOC",
+      "uid": "noc-printer",
+      "level": "device_drilldown",
+      "panel_count": 6
+    }
+  }
+}

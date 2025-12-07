@@ -1,0 +1,100 @@
+# UniFi Port Control Scripts
+# Created by Agent 6 - December 7, 2025
+# Advanced port management with safety features
+
+# Cycle PoE on Specific Port (with delay)
+unifi_cycle_port_poe:
+  alias: "Cycle PoE on Port"
+  mode: queued
+  max: 10
+  fields:
+    port_entity:
+      description: "PoE switch entity"
+      example: "switch.ac_sw_core_port_43_poe"
+    delay_seconds:
+      description: "Delay before power restore"
+      example: 10
+  sequence:
+    - service: logbook.log
+      data:
+        name: "UniFi Port Control"
+        message: "PoE cycle started on {{ port_entity }} ({{ delay_seconds }}s delay)"
+    - service: switch.turn_off
+      target:
+        entity_id: "{{ port_entity }}"
+    - service: persistent_notification.create
+      data:
+        title: "PoE Power Off"
+        message: "{{ port_entity }} - PoE disabled for {{ delay_seconds }} seconds"
+    - delay:
+        seconds: "{{ delay_seconds | int }}"
+    - service: switch.turn_on
+      target:
+        entity_id: "{{ port_entity }}"
+    - service: persistent_notification.create
+      data:
+        title: "PoE Power Restored"
+        message: "{{ port_entity }} - PoE re-enabled"
+
+# Bulk PoE Control - All Ports on Switch
+unifi_all_ports_poe_control:
+  alias: "Control All PoE Ports on Switch"
+  mode: single
+  fields:
+    action:
+      description: "Action: on or off"
+      example: "on"
+    switch_name:
+      description: "Switch identifier"
+      example: "ac_sw_core"
+  sequence:
+    - service: logbook.log
+      data:
+        name: "UniFi Bulk Control"
+        message: "All PoE ports on {{ switch_name }} set to {{ action }}"
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ switch_name == 'ac_sw_core' }}"
+          sequence:
+            - service: "switch.turn_{{ action }}"
+              target:
+                entity_id:
+                  - switch.ac_sw_core_port_43_poe
+                  - switch.ac_sw_core_port_45_poe
+                  - switch.ac_sw_core_port_47_poe
+        - conditions:
+            - condition: template
+              value_template: "{{ switch_name == 'livingroom' }}"
+          sequence:
+            - service: "switch.turn_{{ action }}"
+              target:
+                entity_id:
+                  - switch.ai_sw_livingroom_poe_4_port_1_poe
+                  - switch.ai_sw_livingroom_poe_4_port_2_poe
+                  - switch.ai_sw_livingroom_poe_4_port_3_poe
+
+# Emergency: Disable All PoE (Power saving)
+unifi_emergency_disable_all_poe:
+  alias: "Emergency: Disable All PoE"
+  mode: single
+  sequence:
+    - service: logbook.log
+      data:
+        name: "EMERGENCY UniFi Action"
+        message: "All PoE ports disabled - emergency power saving"
+    - service: persistent_notification.create
+      data:
+        title: "⚠️ EMERGENCY: PoE Shutdown"
+        message: "Disabling all PoE ports for power saving"
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.ac_sw_core_port_43_poe
+          - switch.ac_sw_core_port_45_poe
+          - switch.ac_sw_core_port_47_poe
+          - switch.ai_sw_livingroom_poe_4_port_1_poe
+          - switch.ai_sw_livingroom_poe_4_port_2_poe
+          - switch.ai_sw_livingroom_poe_4_port_3_poe
+          - switch.ae_sw_officeprinter_poe_4_port_4_poe
+

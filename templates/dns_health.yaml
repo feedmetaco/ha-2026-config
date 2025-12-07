@@ -1,0 +1,96 @@
+- sensor:
+    # DNS Health Score (0-100) based on response times
+    - name: "DNS Health Score"
+      unique_id: dns_health_score
+      unit_of_measurement: "%"
+      state: >
+        {% set servers = [
+          states('sensor.dns_cloudflare_response_time') | int(9999),
+          states('sensor.dns_google_response_time') | int(9999),
+          states('sensor.dns_router_response_time') | int(9999),
+          states('sensor.dns_cloudflare_secondary_response_time') | int(9999)
+        ] %}
+        
+        {% set online_servers = servers | reject('eq', 9999) | list %}
+        {% set avg_response = (online_servers | sum / online_servers | length) if online_servers | length > 0 else 9999 %}
+        
+        {# Health scoring: <10ms=100%, 10-50ms=80%, 50-100ms=60%, 100-200ms=40%, >200ms=20%, offline=0% #}
+        {% if avg_response >= 9999 %}
+          0
+        {% elif avg_response <= 10 %}
+          100
+        {% elif avg_response <= 50 %}
+          {{ 100 - ((avg_response - 10) * 0.5) | round(0) }}
+        {% elif avg_response <= 100 %}
+          {{ 80 - ((avg_response - 50) * 0.4) | round(0) }}
+        {% elif avg_response <= 200 %}
+          {{ 60 - ((avg_response - 100) * 0.2) | round(0) }}
+        {% else %}
+          20
+        {% endif %}
+      availability: >
+        {{ states('sensor.dns_cloudflare_response_time') not in ['unknown', 'unavailable', None] }}
+
+    # DNS Average Response Time across all servers
+    - name: "DNS Average Response Time"
+      unique_id: dns_avg_response_time
+      unit_of_measurement: "ms"
+      state: >
+        {% set servers = [
+          states('sensor.dns_cloudflare_response_time') | int(9999),
+          states('sensor.dns_google_response_time') | int(9999),
+          states('sensor.dns_router_response_time') | int(9999),
+          states('sensor.dns_cloudflare_secondary_response_time') | int(9999)
+        ] %}
+        
+        {% set online_servers = servers | reject('eq', 9999) | list %}
+        {{ (online_servers | sum / online_servers | length) | round(1) if online_servers | length > 0 else None }}
+
+    # DNS Fastest Server
+    - name: "DNS Fastest Server"
+      unique_id: dns_fastest_server
+      state: >
+        {% set servers = {
+          'Cloudflare': states('sensor.dns_cloudflare_response_time') | int(9999),
+          'Google': states('sensor.dns_google_response_time') | int(9999),
+          'Router': states('sensor.dns_router_response_time') | int(9999),
+          'Cloudflare Sec': states('sensor.dns_cloudflare_secondary_response_time') | int(9999)
+        } %}
+        
+        {% set online_servers = dict(servers.items() | selectattr('1', 'lt', 9999)) %}
+        {% if online_servers | length > 0 %}
+          {{ online_servers | dictsort(false, 'value') | first | first }}
+        {% else %}
+          None Available
+        {% endif %}
+
+    # DNS Servers Online Count
+    - name: "DNS Servers Online"
+      unique_id: dns_servers_online_count
+      unit_of_measurement: "servers"
+      state: >
+        {% set servers = [
+          states('sensor.dns_cloudflare_response_time') | int(9999),
+          states('sensor.dns_google_response_time') | int(9999),
+          states('sensor.dns_router_response_time') | int(9999),
+          states('sensor.dns_cloudflare_secondary_response_time') | int(9999)
+        ] %}
+        {{ servers | reject('eq', 9999) | list | length }}
+
+- binary_sensor:
+    # DNS Health Status (Good if health score > 70%)
+    - name: "DNS Health Status"
+      unique_id: dns_health_status
+      state: >
+        {{ states('sensor.dns_health_score') | int(0) > 70 }}
+      device_class: connectivity
+      availability: >
+        {{ states('sensor.dns_health_score') not in ['unknown', 'unavailable', None] }}
+
+    # Router DNS Status (Good if response time < 100ms)
+    - name: "Router DNS Status"
+      unique_id: router_dns_status
+      state: >
+        {% set response = states('sensor.dns_router_response_time') | int(9999) %}
+        {{ response < 100 and response != 9999 }}
+      device_class: connectivity

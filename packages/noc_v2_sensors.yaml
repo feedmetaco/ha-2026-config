@@ -1,0 +1,177 @@
+# NOC Dashboard v2 - Template Sensors and Helpers
+# Created: 2025-01-18
+# Purpose: Supporting sensors for NOC-v2 dashboard
+
+template:
+  - sensor:
+      # Total Power Consumption (sum of all PDU outlets)
+      - name: "Total Power Consumption"
+        unique_id: total_power_consumption
+        unit_of_measurement: "W"
+        device_class: power
+        state: >
+          {% set outlets = [
+            'sensor.zz_pwr_pdu_outlet_6_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_7_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_8_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_9_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_10_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_11_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_12_outlet_power'
+          ] %}
+          {% set ns = namespace(total=0) %}
+          {% for outlet in outlets %}
+            {% if has_value(outlet) %}
+              {% set power = states(outlet) | float(0) %}
+              {% set ns.total = ns.total + power %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.total | round(1) }}
+        availability: >
+          {{ has_value('sensor.zz_pwr_pdu_outlet_9_outlet_power') or has_value('sensor.zz_pwr_pdu_outlet_6_outlet_power') }}
+
+      # Active Devices Count
+      - name: "Active Devices Count"
+        unique_id: active_devices_count
+        state: >
+          {% set outlets = [
+            'switch.zz_pwr_pdu_outlet_6',
+            'switch.zz_pwr_pdu_outlet_7',
+            'switch.zz_pwr_pdu_outlet_8',
+            'switch.zz_pwr_pdu_outlet_9',
+            'switch.zz_pwr_pdu_outlet_10',
+            'switch.zz_pwr_pdu_outlet_11',
+            'switch.zz_pwr_pdu_outlet_12',
+            'switch.zz_pwr_pdu_usb_outlet_1',
+            'switch.zz_pwr_pdu_usb_outlet_2',
+            'switch.zz_pwr_pdu_usb_outlet_3',
+            'switch.zz_pwr_pdu_usb_outlet_4'
+          ] %}
+          {% set ns = namespace(count=0) %}
+          {% for outlet in outlets %}
+            {% if has_value(outlet) and is_state(outlet, 'on') %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
+
+      # Network Uptime Percentage
+      - name: "Network Uptime Percent"
+        unique_id: network_uptime_percent
+        unit_of_measurement: "%"
+        state: >
+          {% if has_value('binary_sensor.router_dns_status') %}
+            {% set uptime_hours = (now() - states.binary_sensor.router_dns_status.last_changed).total_seconds() / 3600 %}
+            {% set total_hours = 720 %}
+            {% set percent = (uptime_hours / total_hours * 100) | round(2) %}
+            {{ [percent, 100] | min }}
+          {% elif has_value('binary_sensor.dns_health_status') %}
+            {% set uptime_hours = (now() - states.binary_sensor.dns_health_status.last_changed).total_seconds() / 3600 %}
+            {% set total_hours = 720 %}
+            {% set percent = (uptime_hours / total_hours * 100) | round(2) %}
+            {{ [percent, 100] | min }}
+          {% else %}
+            99.5
+          {% endif %}
+
+      # Estimated Power Cost (based on $0.10/kWh)
+      - name: "Estimated Power Cost"
+        unique_id: estimated_power_cost
+        unit_of_measurement: "$"
+        state: >
+          {% set power_w = states('sensor.total_power_consumption') | float(0) %}
+          {% set power_kw = power_w / 1000 %}
+          {% set hours_per_month = 730 %}
+          {% set cost_per_kwh = 0.10 %}
+          {% set monthly_cost = power_kw * hours_per_month * cost_per_kwh %}
+          {{ monthly_cost | round(2) }}
+
+      # Daily Power Usage (kWh)
+      - name: "Daily Power Usage"
+        unique_id: daily_power_usage
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state: >
+          {% set power_w = states('sensor.total_power_consumption') | float(0) %}
+          {% set power_kw = power_w / 1000 %}
+          {% set hours_per_day = 24 %}
+          {% set daily_kwh = power_kw * hours_per_day %}
+          {{ daily_kwh | round(2) }}
+
+  - binary_sensor:
+      # High Power Alert (>1500W)
+      - name: "High Power Alert"
+        unique_id: high_power_alert
+        device_class: problem
+        state: >
+          {{ states('sensor.total_power_consumption') | float(0) > 1500 }}
+        attributes:
+          threshold: 1500
+          current_power: "{{ states('sensor.total_power_consumption') }}"
+
+      # Network Latency Alert (>50ms)
+      - name: "Network Latency Alert"
+        unique_id: network_latency_alert
+        device_class: problem
+        state: >
+          {% if has_value('sensor.isp_avg_latency_rest') %}
+            {{ states('sensor.isp_avg_latency_rest') | float(0) > 50 }}
+          {% elif has_value('sensor.internet_latency') %}
+            {{ states('sensor.internet_latency') | float(0) > 50 }}
+          {% elif has_value('sensor.dns_average_response_time') %}
+            {{ states('sensor.dns_average_response_time') | float(0) > 50 }}
+          {% else %}
+            false
+          {% endif %}
+        attributes:
+          threshold: 50
+          current_latency: "{{ states('sensor.isp_avg_latency_rest') if has_value('sensor.isp_avg_latency_rest') else (states('sensor.internet_latency') if has_value('sensor.internet_latency') else (states('sensor.dns_average_response_time') if has_value('sensor.dns_average_response_time') else 'N/A')) }}"
+
+      # All Systems Operational
+      - name: "All Systems Operational"
+        unique_id: all_systems_operational
+        device_class: running
+        state: >
+          {% set high_power = is_state('binary_sensor.high_power_alert', 'off') %}
+          {% set latency_ok = is_state('binary_sensor.network_latency_alert', 'off') %}
+          {% set dns_ok = is_state('binary_sensor.router_dns_status', 'on') if has_value('binary_sensor.router_dns_status') else (is_state('binary_sensor.dns_health_status', 'on') if has_value('binary_sensor.dns_health_status') else true) %}
+          {{ high_power and latency_ok and dns_ok }}
+
+# Input Select for Power Preset Tracking
+input_select:
+  power_preset:
+    name: Active Power Preset
+    options:
+      - "Custom Configuration"
+      - "All On"
+      - "Maintenance"
+      - "Core Only"
+      - "Storage Only"
+      - "Emergency Off"
+    initial: "Custom Configuration"
+    icon: mdi:lightning-bolt
+  
+  dashboard_tab:
+    name: Dashboard Tab Selector
+    options:
+      - "⚡ Power Control"
+      - "📊 Analytics"
+      - "🔌 Switch Port Manager"
+    initial: "⚡ Power Control"
+    icon: mdi:view-dashboard
+    icon: mdi:lightning-bolt
+
+# Utility Meter for Power Tracking
+utility_meter:
+  daily_power_meter:
+    source: sensor.total_power_consumption
+    cycle: daily
+  
+  weekly_power_meter:
+    source: sensor.total_power_consumption
+    cycle: weekly
+  
+  monthly_power_meter:
+    source: sensor.total_power_consumption
+    cycle: monthly
+

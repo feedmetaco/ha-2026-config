@@ -1,0 +1,37 @@
+- sensor:
+    - name: "SnoPUD Billing Month Cost"
+      unique_id: snopud_billing_month_cost
+      unit_of_measurement: "USD"
+      device_class: monetary
+      state_class: measurement
+      state: >-
+        {% set kwh = states('sensor.snopud_monthly') | float(0) %}
+        {% set rate = states('input_number.snopud_rate_per_kwh') | float(0) %}
+        {% set base = states('input_number.snopud_daily_base_fee') | float(0) %}
+        {% set tax  = states('input_number.snopud_tax_rate') | float(0) %}
+        {% set y = now().year %}{% set m = now().month %}{% set d = now().day %}
+        {% set ym = '%04d-%02d'|format(y,m) %}
+        {% set prevy = (y - 1) if m == 1 else y %}
+        {% set prevm = 12 if m == 1 else (m - 1) %}
+        {% set prevym = '%04d-%02d'|format(prevy, prevm) %}
+        {% set start = as_datetime((ym ~ '-12 00:00:00') if d >= 12 else (prevym ~ '-12 00:00:00')) %}
+        {% set days = ((as_timestamp(now()) - as_timestamp(start)) / 86400) | int + 1 %}
+        {% set subtotal = (days * base) + (kwh * rate) %}
+        {{ (subtotal * (1 + tax)) | round(2) }}
+
+    - name: "SnoPUD Meter SnoPUD Grid kWh Total"
+      unique_id: snopud_meter_grid_kwh_total
+      unit_of_measurement: "kWh"
+      device_class: energy
+      state_class: total_increasing
+      state: "{{ states('sensor.snopud_meter_snopud_grid_kwh_total_2') | float(0) }}"
+
+    - name: "SnoPUD Grid kWh Total Cost"
+      unique_id: snopud_meter_grid_kwh_total_cost
+      unit_of_measurement: "USD"
+      device_class: monetary
+      state_class: total
+      state: >-
+        {% set kwh = states('input_number.snopud_total_kwh') | float(0) %}
+        {% set rate = states('input_number.snopud_rate_per_kwh') | float(0) %}
+        {{ (kwh * rate) | round(2) }}

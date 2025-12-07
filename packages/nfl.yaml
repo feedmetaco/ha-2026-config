@@ -1,0 +1,144 @@
+sensor:
+  # --- NFC West ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: SF
+    name: NFL_SF
+  - platform: teamtracker
+    league_id: NFL
+    team_id: SEA
+    name: NFL_SEA
+  - platform: teamtracker
+    league_id: NFL
+    team_id: LAR
+    name: NFL_LAR
+  - platform: teamtracker
+    league_id: NFL
+    team_id: ARI
+    name: NFL_ARI
+
+  # --- NFC North ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: GB
+    name: NFL_GB
+  - platform: teamtracker
+    league_id: NFL
+    team_id: MIN
+    name: NFL_MIN
+  - platform: teamtracker
+    league_id: NFL
+    team_id: DET
+    name: NFL_DET
+  - platform: teamtracker
+    league_id: NFL
+    team_id: CHI
+    name: NFL_CHI
+
+  # --- NFC East ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: PHI
+    name: NFL_PHI
+  - platform: teamtracker
+    league_id: NFL
+    team_id: DAL
+    name: NFL_DAL
+  - platform: teamtracker
+    league_id: NFL
+    team_id: NYG
+    name: NFL_NYG
+  - platform: teamtracker
+    league_id: NFL
+    team_id: WAS
+    name: NFL_WAS
+
+  # --- NFC South ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: TB
+    name: NFL_TB
+  - platform: teamtracker
+    league_id: NFL
+    team_id: NO
+    name: NFL_NO
+  - platform: teamtracker
+    league_id: NFL
+    team_id: ATL
+    name: NFL_ATL
+  - platform: teamtracker
+    league_id: NFL
+    team_id: CAR
+    name: NFL_CAR
+
+  # --- AFC West ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: KC
+    name: NFL_KC
+  - platform: teamtracker
+    league_id: NFL
+    team_id: LAC
+    name: NFL_LAC
+  - platform: teamtracker
+    league_id: NFL
+    team_id: LV
+    name: NFL_LV
+  - platform: teamtracker
+    league_id: NFL
+    team_id: DEN
+    name: NFL_DEN
+
+  # --- AFC North ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: PIT
+    name: NFL_PIT
+  - platform: teamtracker
+    league_id: NFL
+    team_id: BAL
+    name: NFL_BAL
+  - platform: teamtracker
+    league_id: NFL
+    team_id: CLE
+    name: NFL_CLE
+  - platform: teamtracker
+    league_id: NFL
+    team_id: CIN
+    name: NFL_CIN
+
+  # --- AFC East ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: BUF
+    name: NFL_BUF
+  - platform: teamtracker
+    league_id: NFL
+    team_id: MIA
+    name: NFL_MIA
+  - platform: teamtracker
+    league_id: NFL
+    team_id: NYJ
+    name: NFL_NYJ
+  - platform: teamtracker
+    league_id: NFL
+    team_id: NE
+    name: NFL_NE
+
+  # --- AFC South ---
+  - platform: teamtracker
+    league_id: NFL
+    team_id: JAX
+    name: NFL_JAX
+  - platform: teamtracker
+    league_id: NFL
+    team_id: HOU
+    name: NFL_HOU
+  - platform: teamtracker
+    league_id: NFL
+    team_id: IND
+    name: NFL_IND
+  - platform: teamtracker
+    league_id: NFL
+    team_id: TEN
+    name: NFL_TEN

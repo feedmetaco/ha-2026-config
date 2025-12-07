@@ -1,0 +1,1212 @@
+title: NOC Dashboard v2
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:monitor-dashboard
+    cards:
+      # Power Presets & Quick Scenes Section
+      - type: markdown
+        content: |
+          # ⚡ Power Presets & Quick Scenes
+          
+          One-click power management presets for common scenarios. Each preset optimizes your infrastructure for specific use cases.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-bottom: 20px;
+            }
+      
+      # Preset Cards Grid
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+          gap: 20px
+        cards:
+          # All On Preset Card
+          - type: custom:button-card
+            name: All On
+            tap_action:
+              action: call-service
+              service: script.preset_all_on
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(0, 217, 255, 0.1);
+                  backdrop-filter: blur(20px);
+                  border: 2px solid rgba(0, 217, 255, 0.3);
+                  border-radius: 20px;
+                  padding: 28px;
+                  text-align: center;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  cursor: pointer;
+                }
+                ha-card:hover {
+                  transform: translateY(-8px) scale(1.02);
+                  border-color: rgba(0, 217, 255, 0.6);
+                  box-shadow: 0 12px 40px rgba(0, 217, 255, 0.3);
+                }
+            custom_fields:
+              icon_large: |
+                [[[ return `<div style="font-size: 64px; text-align: center; margin-bottom: 16px; filter: drop-shadow(0 4px 12px rgba(0, 217, 255, 0.4));">⚡</div>` ]]]
+              name: |
+                [[[ return `<div style="font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 12px;">All On</div>` ]]]
+              description: |
+                [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 16px; line-height: 1.6; min-height: 60px;">Power up everything - all switches, servers, storage, and network equipment. Perfect for full system startup.</div>` ]]]
+              stats: |
+                [[[ return `<div style="font-size: 13px; color: #00d9ff; text-align: center; padding: 10px; background: rgba(0,217,255,0.1); border-radius: 12px; border: 1px solid rgba(0,217,255,0.2); font-weight: 600;">~660W • All Devices Active</div>` ]]]
+          
+          # Maintenance Preset Card
+          - type: custom:button-card
+            name: Maintenance
+            tap_action:
+              action: call-service
+              service: script.preset_maintenance
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(0, 217, 255, 0.1);
+                  backdrop-filter: blur(20px);
+                  border: 2px solid rgba(0, 217, 255, 0.3);
+                  border-radius: 20px;
+                  padding: 28px;
+                  text-align: center;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  cursor: pointer;
+                }
+                ha-card:hover {
+                  transform: translateY(-8px) scale(1.02);
+                  border-color: rgba(0, 217, 255, 0.6);
+                  box-shadow: 0 12px 40px rgba(0, 217, 255, 0.3);
+                }
+            custom_fields:
+              icon_large: |
+                [[[ return `<div style="font-size: 64px; text-align: center; margin-bottom: 16px;">🔧</div>` ]]]
+              name: |
+                [[[ return `<div style="font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 12px;">Maintenance</div>` ]]]
+              description: |
+                [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 16px; line-height: 1.6; min-height: 60px;">Keep only essential services running. Ideal for updates, backups, or troubleshooting without full shutdown.</div>` ]]]
+              stats: |
+                [[[ return `<div style="font-size: 13px; color: #00d9ff; text-align: center; padding: 10px; background: rgba(0,217,255,0.1); border-radius: 12px; border: 1px solid rgba(0,217,255,0.2); font-weight: 600;">~200W • Core + Storage</div>` ]]]
+          
+          # Core Only Preset Card
+          - type: custom:button-card
+            name: Core Only
+            tap_action:
+              action: call-service
+              service: script.preset_core_only
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(0, 217, 255, 0.1);
+                  backdrop-filter: blur(20px);
+                  border: 2px solid rgba(0, 217, 255, 0.3);
+                  border-radius: 20px;
+                  padding: 28px;
+                  text-align: center;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  cursor: pointer;
+                }
+                ha-card:hover {
+                  transform: translateY(-8px) scale(1.02);
+                  border-color: rgba(0, 217, 255, 0.6);
+                  box-shadow: 0 12px 40px rgba(0, 217, 255, 0.3);
+                }
+            custom_fields:
+              icon_large: |
+                [[[ return `<div style="font-size: 64px; text-align: center; margin-bottom: 16px;">🛡️</div>` ]]]
+              name: |
+                [[[ return `<div style="font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 12px;">Core Only</div>` ]]]
+              description: |
+                [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 16px; line-height: 1.6; min-height: 60px;">Minimal power mode - only critical infrastructure. Network gateway, core switch, and essential services.</div>` ]]]
+              stats: |
+                [[[ return `<div style="font-size: 13px; color: #00d9ff; text-align: center; padding: 10px; background: rgba(0,217,255,0.1); border-radius: 12px; border: 1px solid rgba(0,217,255,0.2); font-weight: 600;">~85W • Gateway + Core Switch</div>` ]]]
+          
+          # Storage Only Preset Card
+          - type: custom:button-card
+            name: Storage Only
+            tap_action:
+              action: call-service
+              service: script.preset_storage_only
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(0, 217, 255, 0.1);
+                  backdrop-filter: blur(20px);
+                  border: 2px solid rgba(0, 217, 255, 0.3);
+                  border-radius: 20px;
+                  padding: 28px;
+                  text-align: center;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  cursor: pointer;
+                }
+                ha-card:hover {
+                  transform: translateY(-8px) scale(1.02);
+                  border-color: rgba(0, 217, 255, 0.6);
+                  box-shadow: 0 12px 40px rgba(0, 217, 255, 0.3);
+                }
+            custom_fields:
+              icon_large: |
+                [[[ return `<div style="font-size: 64px; text-align: center; margin-bottom: 16px;">💾</div>` ]]]
+              name: |
+                [[[ return `<div style="font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 12px;">Storage Only</div>` ]]]
+              description: |
+                [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 16px; line-height: 1.6; min-height: 60px;">Power up storage systems and NAS devices. Perfect for data access without full network infrastructure.</div>` ]]]
+              stats: |
+                [[[ return `<div style="font-size: 13px; color: #00d9ff; text-align: center; padding: 10px; background: rgba(0,217,255,0.1); border-radius: 12px; border: 1px solid rgba(0,217,255,0.2); font-weight: 600;">~108W • UNVR + Synology</div>` ]]]
+          
+          # Emergency Off Preset Card
+          - type: custom:button-card
+            name: Emergency Off
+            tap_action:
+              action: call-service
+              service: script.preset_emergency_off
+              confirmation:
+                text: Are you sure you want to shut down all non-critical systems?
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(255, 59, 48, 0.1);
+                  backdrop-filter: blur(20px);
+                  border: 2px solid rgba(255, 59, 48, 0.4);
+                  border-radius: 20px;
+                  padding: 28px;
+                  text-align: center;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  cursor: pointer;
+                }
+                ha-card:hover {
+                  transform: translateY(-8px) scale(1.02);
+                  border-color: rgba(255, 59, 48, 0.7);
+                  box-shadow: 0 12px 40px rgba(255, 59, 48, 0.3);
+                }
+            custom_fields:
+              icon_large: |
+                [[[ return `<div style="font-size: 64px; text-align: center; margin-bottom: 16px;">🚨</div>` ]]]
+              name: |
+                [[[ return `<div style="font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 12px;">Emergency Off</div>` ]]]
+              description: |
+                [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 16px; line-height: 1.6; min-height: 60px;">Immediate shutdown of all non-critical systems. Use only in emergency situations or power issues.</div>` ]]]
+              stats: |
+                [[[ return `<div style="font-size: 13px; color: #ff4757; text-align: center; padding: 10px; background: rgba(255,71,87,0.1); border-radius: 12px; border: 1px solid rgba(255,71,87,0.2); font-weight: 600;">~0W • Critical Systems Only</div>` ]]]
+      
+      # Current Status Display Grid
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+          gap: 20px
+        cards:
+          - type: markdown
+            content: |
+              **Active Preset**
+              
+              {{ states('input_select.power_preset') }}
+              
+              <small>Click a preset above to switch modes</small>
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(26, 35, 45, 0.4);
+                  backdrop-filter: blur(20px);
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid rgba(50, 65, 80, 0.4);
+                }
+          
+          - type: markdown
+            content: |
+              **Total Power Draw**
+              
+              {{ states('sensor.total_power_consumption') }}W
+              
+              <small>{{ (states('sensor.total_power_consumption') | float / 1850 * 100) | round }}% of 1,850W capacity</small>
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(26, 35, 45, 0.4);
+                  backdrop-filter: blur(20px);
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid rgba(50, 65, 80, 0.4);
+                }
+          
+          - type: markdown
+            content: |
+              **Active Devices**
+              
+              {{ states('sensor.active_devices_count') }}
+              
+              <small>of 11 total devices</small>
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(26, 35, 45, 0.4);
+                  backdrop-filter: blur(20px);
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid rgba(50, 65, 80, 0.4);
+                }
+          
+          - type: markdown
+            content: |
+              **Est. Monthly Cost**
+              
+              ${{ states('sensor.estimated_power_cost') }}
+              
+              <small>Based on $0.10/kWh</small>
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(26, 35, 45, 0.4);
+                  backdrop-filter: blur(20px);
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid rgba(50, 65, 80, 0.4);
+                }
+      
+      # Quick Actions - PDU Automation Trigger
+      - type: custom:button-card
+        name: Switch Port Control (PDU v2)
+        icon: mdi:lightning-bolt-circle
+        tap_action:
+          action: call-service
+          service: script.trigger_switch_port_control_pdu_v2
+        card_mod:
+          style: |
+            ha-card {
+              background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 168, 204, 0.2));
+              backdrop-filter: blur(20px);
+              border: 2px solid rgba(0, 217, 255, 0.4);
+              border-radius: 20px;
+              padding: 20px;
+              cursor: pointer;
+              margin-top: 20px;
+            }
+            ha-card:hover {
+              transform: translateY(-4px) scale(1.01);
+              box-shadow: 0 12px 40px rgba(0, 217, 255, 0.4);
+            }
+        custom_fields:
+          description: |
+            [[[ return `<div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 10px;">Trigger NFC automation to manage switch ports and PDU outlets via tag scan</div>` ]]]
+      
+      # Smart Alert & Notification System
+      - type: markdown
+        content: |
+          # 🔔 Smart Alert & Notification System
+          
+          Proactive alerts for power issues, network problems, and device failures.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-top: 40px;
+              margin-bottom: 20px;
+            }
+      
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.high_power_alert
+            state: "on"
+        card:
+          type: custom:mushroom-entity-card
+          entity: binary_sensor.high_power_alert
+          name: High Power Consumption
+          icon: mdi:alert
+          icon_color: red
+          card_mod:
+            style: |
+              ha-card {
+                background: rgba(255, 59, 48, 0.1);
+                border-left: 4px solid rgba(255, 59, 48, 0.8);
+                padding: 20px;
+              }
+      
+      - type: custom:mushroom-entity-card
+        entity: binary_sensor.all_systems_operational
+        name: All Systems Operational
+        icon: mdi:check-circle
+        icon_color: green
+        card_mod:
+          style: |
+            ha-card {
+              background: rgba(52, 199, 89, 0.1);
+              border-left: 4px solid rgba(52, 199, 89, 0.8);
+              padding: 20px;
+            }
+      
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.network_latency_alert
+            state: "on"
+        card:
+          type: custom:mushroom-entity-card
+          entity: binary_sensor.network_latency_alert
+          name: Latency Spike Detected
+          icon: mdi:wifi-alert
+          icon_color: orange
+          card_mod:
+            style: |
+              ha-card {
+                background: rgba(255, 159, 10, 0.1);
+                border-left: 4px solid rgba(255, 159, 10, 0.8);
+                padding: 20px;
+              }
+      
+      # Core System Vitals
+      - type: markdown
+        content: |
+          # 💻 Core System Vitals
+          
+          Real-time Home Assistant system monitoring. CPU, memory, and disk usage with historical trends.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-top: 40px;
+              margin-bottom: 20px;
+            }
+      
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.processor_use_percent
+            name: CPU Usage
+            unit: "%"
+            min: 0
+            max: 100
+            severity:
+              green: 0
+              yellow: 60
+              red: 80
+          
+          - type: gauge
+            entity: sensor.memory_use_percent
+            name: Memory Usage
+            unit: "%"
+            min: 0
+            max: 100
+            severity:
+              green: 0
+              yellow: 70
+              red: 85
+          
+          - type: gauge
+            entity: sensor.disk_use_percent
+            name: Disk Usage
+            unit: "%"
+            min: 0
+            max: 100
+            severity:
+              green: 0
+              yellow: 70
+              red: 90
+      
+      # System Health Overview
+      - type: markdown
+        content: |
+          # 📊 System Health Overview
+          
+          Real-time monitoring of critical infrastructure components. Quick glance at overall system status.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-top: 40px;
+              margin-bottom: 20px;
+            }
+      
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
+          gap: 16px
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: sensor.network_uptime_percent
+            name: Network Uptime
+            icon: mdi:network
+            icon_color: green
+            primary_info: state
+            secondary_info: last-changed
+          
+          - type: custom:mushroom-entity-card
+            entity: sensor.total_power_consumption
+            name: Power Draw
+            icon: mdi:flash
+            icon_color: amber
+            primary_info: state
+            secondary_info: name
+          
+          - type: custom:mushroom-entity-card
+            entity: sensor.processor_temperature
+            name: Avg Temperature
+            icon: mdi:thermometer
+            icon_color: green
+            primary_info: state
+            secondary_info: last-changed
+      
+      # Quick Device Controls
+      - type: markdown
+        content: |
+          # 🎛️ Quick Device Controls
+          
+          Instant access to frequently used device controls. Toggle switches, adjust settings, and monitor status.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-top: 40px;
+              margin-bottom: 20px;
+            }
+      
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))
+          gap: 12px
+        cards:
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_7
+            name: Core Switch
+            icon: mdi:network
+            show_state: true
+            tap_action:
+              action: toggle
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: rgba(52, 199, 89, 0.2)
+                    - border-color: rgba(52, 199, 89, 0.5)
+                    - color: rgba(255, 255, 255, 0.95)
+                    - padding: 20px
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(255, 255, 255, 0.04)
+                    - border-color: rgba(255, 255, 255, 0.1)
+                    - color: rgba(255, 255, 255, 0.4)
+                    - padding: 20px
+            custom_fields:
+              status: |
+                [[[ 
+                  if (states['switch.zz_pwr_pdu_outlet_7'].state === 'on') {
+                    return `<small style="color: rgba(52, 199, 89, 1);">ONLINE</small>`;
+                  } else {
+                    return `<small style="opacity: 0.6;">OFFLINE</small>`;
+                  }
+                ]]]
+          
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_9
+            name: UNVR
+            icon: mdi:video-box
+            show_state: true
+            tap_action:
+              action: toggle
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: rgba(52, 199, 89, 0.2)
+                    - border-color: rgba(52, 199, 89, 0.5)
+                    - color: rgba(255, 255, 255, 0.95)
+                    - padding: 20px
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(255, 255, 255, 0.04)
+                    - border-color: rgba(255, 255, 255, 0.1)
+                    - color: rgba(255, 255, 255, 0.4)
+                    - padding: 20px
+            custom_fields:
+              status: |
+                [[[ 
+                  if (states['switch.zz_pwr_pdu_outlet_9'].state === 'on') {
+                    return `<small style="color: rgba(52, 199, 89, 1);">RECORDING</small>`;
+                  } else {
+                    return `<small style="opacity: 0.6;">IDLE</small>`;
+                  }
+                ]]]
+          
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_10
+            name: NAS
+            icon: mdi:nas
+            show_state: true
+            tap_action:
+              action: toggle
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: rgba(52, 199, 89, 0.2)
+                    - border-color: rgba(52, 199, 89, 0.5)
+                    - color: rgba(255, 255, 255, 0.95)
+                    - padding: 20px
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(255, 255, 255, 0.04)
+                    - border-color: rgba(255, 255, 255, 0.1)
+                    - color: rgba(255, 255, 255, 0.4)
+                    - padding: 20px
+            custom_fields:
+              status: |
+                [[[ 
+                  if (states['switch.zz_pwr_pdu_outlet_10'].state === 'on') {
+                    return `<small style="color: rgba(52, 199, 89, 1);">RUNNING</small>`;
+                  } else {
+                    return `<small style="opacity: 0.6;">STOPPED</small>`;
+                  }
+                ]]]
+          
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_12
+            name: UDMP-SE
+            icon: mdi:router
+            show_state: true
+            tap_action:
+              action: toggle
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: rgba(52, 199, 89, 0.2)
+                    - border-color: rgba(52, 199, 89, 0.5)
+                    - color: rgba(255, 255, 255, 0.95)
+                    - padding: 20px
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(255, 255, 255, 0.04)
+                    - border-color: rgba(255, 255, 255, 0.1)
+                    - color: rgba(255, 255, 255, 0.4)
+                    - padding: 20px
+            custom_fields:
+              status: |
+                [[[ 
+                  if (states['switch.zz_pwr_pdu_outlet_12'].state === 'on') {
+                    return `<small style="color: rgba(52, 199, 89, 1);">ACTIVE</small>`;
+                  } else {
+                    return `<small style="opacity: 0.6;">INACTIVE</small>`;
+                  }
+                ]]]
+          
+          - type: custom:button-card
+            name: PDU
+            icon: mdi:power-plug
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(52, 199, 89, 0.2);
+                  border-color: rgba(52, 199, 89, 0.5);
+                  color: rgba(255, 255, 255, 0.95);
+                  padding: 20px;
+                }
+            custom_fields:
+              status: |
+                [[[ 
+                  const active = ['switch.zz_pwr_pdu_outlet_6', 'switch.zz_pwr_pdu_outlet_7', 'switch.zz_pwr_pdu_outlet_8', 'switch.zz_pwr_pdu_outlet_9', 'switch.zz_pwr_pdu_outlet_10', 'switch.zz_pwr_pdu_outlet_11', 'switch.zz_pwr_pdu_outlet_12'].filter(e => states[e]?.state === 'on').length;
+                  return `<small style="color: rgba(52, 199, 89, 1);">${active}/7 ON</small>`;
+                ]]]
+          
+          - type: custom:button-card
+            name: Backup
+            icon: mdi:backup-restore
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(255, 255, 255, 0.04);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  color: rgba(255, 255, 255, 0.4);
+                  padding: 20px;
+                }
+            custom_fields:
+              status: |
+                [[[ return `<small style="opacity: 0.6;">IDLE</small>` ]]]
+      
+      # Tabbed Section - Power Control / Analytics / Switch Manager
+      - type: markdown
+        content: |
+          # Tabbed Organization & Quick Navigation
+          
+          Organize controls into logical tabs for better navigation and reduced clutter. Click tabs to switch between views.
+        card_mod:
+          style: |
+            ha-card {
+              background: transparent;
+              box-shadow: none;
+              border: none;
+              padding: 0;
+              margin-top: 40px;
+              margin-bottom: 20px;
+            }
+      
+      # Tab Selector Buttons
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(3, 1fr)
+          gap: 8px
+        cards:
+          - type: custom:button-card
+            name: "⚡ Power Control"
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.dashboard_tab
+                option: "⚡ Power Control"
+            card_mod:
+              style: |
+                ha-card {
+                  background: {{ 'rgba(0, 217, 255, 0.1)' if is_state('input_select.dashboard_tab', '⚡ Power Control') else 'transparent' }};
+                  border-bottom: 3px solid {{ 'rgba(0, 217, 255, 1)' if is_state('input_select.dashboard_tab', '⚡ Power Control') else 'transparent' }};
+                  border-radius: 12px 12px 0 0;
+                  padding: 14px 28px;
+                  text-align: center;
+                }
+          
+          - type: custom:button-card
+            name: "📊 Analytics"
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.dashboard_tab
+                option: "📊 Analytics"
+            card_mod:
+              style: |
+                ha-card {
+                  background: {{ 'rgba(0, 217, 255, 0.1)' if is_state('input_select.dashboard_tab', '📊 Analytics') else 'transparent' }};
+                  border-bottom: 3px solid {{ 'rgba(0, 217, 255, 1)' if is_state('input_select.dashboard_tab', '📊 Analytics') else 'transparent' }};
+                  border-radius: 12px 12px 0 0;
+                  padding: 14px 28px;
+                  text-align: center;
+                }
+          
+          - type: custom:button-card
+            name: "🔌 Switch Port Manager"
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.dashboard_tab
+                option: "🔌 Switch Port Manager"
+            card_mod:
+              style: |
+                ha-card {
+                  background: {{ 'rgba(0, 217, 255, 0.1)' if is_state('input_select.dashboard_tab', '🔌 Switch Port Manager') else 'transparent' }};
+                  border-bottom: 3px solid {{ 'rgba(0, 217, 255, 1)' if is_state('input_select.dashboard_tab', '🔌 Switch Port Manager') else 'transparent' }};
+                  border-radius: 12px 12px 0 0;
+                  padding: 14px 28px;
+                  text-align: center;
+                }
+      
+      # Power Control Tab Content
+      - type: conditional
+        conditions:
+          - entity: input_select.dashboard_tab
+            state: "⚡ Power Control"
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:mushroom-title-card
+              title: UniFi PDU Control
+              subtitle: CONNECTED
+            
+            - type: custom:mushroom-entity-card
+              entity: sensor.total_power_consumption
+              name: Total Load
+              primary_info: state
+              secondary_info: name
+            
+            # USB Ports Group
+            - type: custom:mushroom-title-card
+              title: 🔌 USB Ports
+              subtitle: "4 Active"
+            
+            - type: custom:grid-layout
+              layout:
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))
+                gap: 12px
+              cards:
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_usb_outlet_1
+                  name: USB1
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    status: |
+                      [[[ 
+                        return `<small>${states['switch.zz_pwr_pdu_usb_outlet_1'].state.toUpperCase()}</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_usb_outlet_2
+                  name: USB2
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    status: |
+                      [[[ 
+                        return `<small>${states['switch.zz_pwr_pdu_usb_outlet_2'].state.toUpperCase()}</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_usb_outlet_3
+                  name: USB3
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    status: |
+                      [[[ 
+                        return `<small>${states['switch.zz_pwr_pdu_usb_outlet_3'].state.toUpperCase()}</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_usb_outlet_4
+                  name: USB4
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    status: |
+                      [[[ 
+                        return `<small>${states['switch.zz_pwr_pdu_usb_outlet_4'].state.toUpperCase()}</small>`;
+                      ]]]
+            
+            # Core Infrastructure Group
+            - type: custom:mushroom-title-card
+              title: ⚡ Core Infrastructure
+              subtitle: "141W Total"
+            
+            - type: custom:grid-layout
+              layout:
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))
+                gap: 12px
+              cards:
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_6
+                  name: "6 UAG"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_6_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_7
+                  name: "7 CORE"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_7_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_8
+                  name: "8 BACKUP"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_8_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_12
+                  name: "12 UDMP-SE"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_12_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+            
+            # Storage Systems Group
+            - type: custom:mushroom-title-card
+              title: 💾 Storage Systems
+              subtitle: "108W Total"
+            
+            - type: custom:grid-layout
+              layout:
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))
+                gap: 12px
+              cards:
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_9
+                  name: "9 UNVR"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_9_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+                
+                - type: custom:button-card
+                  entity: switch.zz_pwr_pdu_outlet_10
+                  name: "10 SYNOLOGY"
+                  show_state: true
+                  tap_action:
+                    action: toggle
+                  state:
+                    - value: "on"
+                      styles:
+                        card:
+                          - background: rgba(52, 199, 89, 0.2)
+                          - border-color: rgba(52, 199, 89, 0.5)
+                          - color: rgba(255, 255, 255, 0.95)
+                    - value: "off"
+                      styles:
+                        card:
+                          - background: rgba(255, 255, 255, 0.04)
+                          - border-color: rgba(255, 255, 255, 0.1)
+                          - color: rgba(255, 255, 255, 0.4)
+                  custom_fields:
+                    power: |
+                      [[[ 
+                        const power = states['sensor.zz_pwr_pdu_outlet_10_power']?.state || '0';
+                        return `<small>${power}W</small>`;
+                      ]]]
+            
+            # Network Equipment Group
+            - type: custom:mushroom-title-card
+              title: 🌐 Network Equipment
+              subtitle: "11W Total"
+            
+            - type: custom:button-card
+              entity: switch.zz_pwr_pdu_outlet_11
+              name: "11 ISP-ROUTER"
+              show_state: true
+              tap_action:
+                action: toggle
+              state:
+                - value: "on"
+                  styles:
+                    card:
+                      - background: rgba(52, 199, 89, 0.2)
+                      - border-color: rgba(52, 199, 89, 0.5)
+                      - color: rgba(255, 255, 255, 0.95)
+                - value: "off"
+                  styles:
+                    card:
+                      - background: rgba(255, 255, 255, 0.04)
+                      - border-color: rgba(255, 255, 255, 0.1)
+                      - color: rgba(255, 255, 255, 0.4)
+              custom_fields:
+                power: |
+                  [[[ 
+                    const power = states['sensor.zz_pwr_pdu_outlet_11_power']?.state || '0';
+                    return `<small>${power}W</small>`;
+                  ]]]
+      
+      # Analytics Tab Content
+      - type: conditional
+        conditions:
+          - entity: input_select.dashboard_tab
+            state: "📊 Analytics"
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:mushroom-title-card
+              title: 📊 Analytics
+              subtitle: System performance and network metrics
+            
+            - type: horizontal-stack
+              cards:
+                - type: gauge
+                  entity: sensor.processor_use_percent
+                  name: CPU Usage
+                  unit: "%"
+                  min: 0
+                  max: 100
+                
+                - type: gauge
+                  entity: sensor.memory_use_percent
+                  name: Memory Usage
+                  unit: "%"
+                  min: 0
+                  max: 100
+                
+                - type: gauge
+                  entity: sensor.disk_use_percent
+                  name: Disk Usage
+                  unit: "%"
+                  min: 0
+                  max: 100
+            
+            - type: custom:apexcharts-card
+              header:
+                show: true
+                title: Internet Latency (24h)
+              graph_span: 24h
+              series:
+                - entity: sensor.internet_latency
+                  name: Latency
+                  stroke_width: 2
+                  type: line
+                  color: "#00d9ff"
+            
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-entity-card
+                  entity: sensor.internet_download_speed
+                  name: Download Speed
+                  icon: mdi:download
+                  icon_color: green
+                  primary_info: state
+                  secondary_info: name
+                
+                - type: custom:mushroom-entity-card
+                  entity: sensor.internet_upload_speed
+                  name: Upload Speed
+                  icon: mdi:upload
+                  icon_color: blue
+                  primary_info: state
+                  secondary_info: name
+            
+            - type: custom:mushroom-entity-card
+              entity: sensor.daily_power_usage
+              name: Today's Usage
+              icon: mdi:lightning-bolt
+              icon_color: amber
+              primary_info: state
+              secondary_info: name
+            
+            - type: custom:mushroom-entity-card
+              entity: sensor.estimated_power_cost
+              name: Estimated Cost
+              icon: mdi:currency-usd
+              icon_color: green
+              primary_info: state
+              secondary_info: name
+            
+            - type: custom:apexcharts-card
+              header:
+                show: true
+                title: Power Usage Trend (30 Days)
+              graph_span: 30d
+              series:
+                - entity: sensor.total_power_consumption
+                  name: Power Draw
+                  stroke_width: 2
+                  type: area
+                  color: "#ffb800"
+      
+      # Switch Port Manager Tab Content
+      - type: conditional
+        conditions:
+          - entity: input_select.dashboard_tab
+            state: "🔌 Switch Port Manager"
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:mushroom-title-card
+              title: 🔌 Switch Port Manager
+              subtitle: Network switch and PDU port management
+            
+            - type: custom:fold-entity-row
+              head:
+                type: section
+                label: Core Switch (ac_sw_core)
+              entities:
+                - entity: switch.ac_sw_core_port_43_poe
+                  name: Port 43 PoE
+                  icon: mdi:ethernet
+                - entity: switch.ac_sw_core_port_45_poe
+                  name: Port 45 PoE
+                  icon: mdi:ethernet
+                - entity: switch.ac_sw_core_port_47_poe
+                  name: Port 47 PoE
+                  icon: mdi:ethernet
+            
+            - type: custom:fold-entity-row
+              head:
+                type: section
+                label: Office Printer Switch (ae_sw_officeprinter_poe_4)
+              entities:
+                - entity: switch.ae_sw_officeprinter_poe_4_port_4_poe
+                  name: Port 4 PoE (Office Printer)
+                  icon: mdi:printer
+            
+            - type: custom:fold-entity-row
+              head:
+                type: section
+                label: Living Room Switch (ai_sw_livingroom_poe_4)
+              entities:
+                - entity: switch.ai_sw_livingroom_poe_4_port_1_poe
+                  name: Port 1 PoE (iPad Wallboard)
+                  icon: mdi:tablet
+                - entity: switch.ai_sw_livingroom_poe_4_port_2_poe
+                  name: Port 2 PoE
+                  icon: mdi:ethernet
+                - entity: switch.ai_sw_livingroom_poe_4_port_3_poe
+                  name: Port 3 PoE
+                  icon: mdi:ethernet
+            
+            - type: custom:button-card
+              name: Trigger PDU Automation
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: call-service
+                service: script.trigger_switch_port_control_pdu_v2
+              card_mod:
+                style: |
+                  ha-card {
+                    background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 168, 204, 0.2));
+                    border: 2px solid rgba(0, 217, 255, 0.4);
+                    border-radius: 20px;
+                    padding: 20px;
+                  }

@@ -1,0 +1,133 @@
+# Estimated Energy Consumption Sensors
+# Devices that can't be monitored directly - using industry averages
+# All marked with "ESTIMATED" in name and attributes
+# Power sensors are integrated via integration platform in configuration.yaml
+
+template:
+  - sensor:
+      # HVAC System (Heating/Cooling) - ESTIMATED
+      - name: "HVAC System Power (ESTIMATED)"
+        unique_id: hvac_system_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "1500"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical HVAC consumption"
+          notes: "Based on 3000W system running ~50% of time"
+          is_estimated: true
+
+      # Water Heater - ESTIMATED (4500W, ~3 hours/day = 562.5W average)
+      - name: "Water Heater Power (ESTIMATED)"
+        unique_id: water_heater_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "562.5"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical electric water heater"
+          notes: "4500W heater, ~3 hours runtime per day = 562.5W average"
+          is_estimated: true
+
+      # Refrigerator - ESTIMATED
+      - name: "Refrigerator Power (ESTIMATED)"
+        unique_id: refrigerator_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "150"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical refrigerator consumption"
+          notes: "150W average power consumption"
+          is_estimated: true
+
+      # Washer/Dryer - ESTIMATED (averaged over day)
+      - name: "Washer Dryer Power (ESTIMATED)"
+        unique_id: washer_dryer_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "104.2"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical washer/dryer consumption"
+          notes: "Based on 5 loads per week average = 104.2W average"
+          is_estimated: true
+
+      # Dishwasher - ESTIMATED (1200W, ~1.5 hours/day = 75W average)
+      - name: "Dishwasher Power (ESTIMATED)"
+        unique_id: dishwasher_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "75"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical dishwasher consumption"
+          notes: "1200W, ~1.5 hours runtime per day = 75W average"
+          is_estimated: true
+
+      # Oven/Range - ESTIMATED (3000W, ~1 hour/day = 125W average)
+      - name: "Oven Range Power (ESTIMATED)"
+        unique_id: oven_range_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "125"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical electric range consumption"
+          notes: "3000W when in use, ~1 hour per day = 125W average"
+          is_estimated: true
+
+      # Microwave - ESTIMATED (1000W, ~15 min/day = 10.4W average)
+      - name: "Microwave Power (ESTIMATED)"
+        unique_id: microwave_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "10.4"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical microwave consumption"
+          notes: "1000W, ~15 minutes per day = 10.4W average"
+          is_estimated: true
+
+      # Phantom Loads (Standby Power) - ESTIMATED
+      - name: "Phantom Loads Power (ESTIMATED)"
+        unique_id: phantom_loads_power_estimated
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: "200"
+        attributes:
+          estimation_type: "Industry Average"
+          source: "Google Search - Typical phantom/standby loads"
+          notes: "200W total standby power from all devices"
+          is_estimated: true
+
+      # Total Estimated Power (sum of all estimated devices)
+      - name: "Total Estimated Power (ESTIMATED)"
+        unique_id: total_estimated_power
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set estimated_devices = [
+            'sensor.hvac_system_power_estimated',
+            'sensor.water_heater_power_estimated',
+            'sensor.refrigerator_power_estimated',
+            'sensor.washer_dryer_power_estimated',
+            'sensor.dishwasher_power_estimated',
+            'sensor.oven_range_power_estimated',
+            'sensor.microwave_power_estimated',
+            'sensor.phantom_loads_power_estimated'
+          ] %}
+          {{ estimated_devices | map('states') | map('float', 0) | sum | round(1) }}
+        attributes:
+          category: "Estimated"
+          device_count: 8
+          is_estimated: true

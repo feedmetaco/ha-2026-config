@@ -1,0 +1,63 @@
+# DNS Filtering Summary (AdGuard + Pi-hole)
+# Created by Agent 3 - December 7, 2025
+
+template:
+  - sensor:
+      # Combined DNS Queries
+      - name: "DNS Total Queries"
+        unique_id: dns_total_queries
+        state_class: total_increasing
+        state: >
+          {% set adguard = states('sensor.adguard_home_dns_queries') | int(0) %}
+          {% set pihole = states('sensor.pi_hole_dns_queries_today') | int(0) %}
+          {{ adguard + pihole }}
+        attributes:
+          adguard_queries: "{{ states('sensor.adguard_home_dns_queries') }}"
+          pihole_queries: "{{ states('sensor.pi_hole_dns_queries_today') }}"
+
+      # Combined Blocked Queries
+      - name: "DNS Total Blocked"
+        unique_id: dns_total_blocked
+        state_class: total_increasing
+        state: >
+          {% set adguard = states('sensor.adguard_home_dns_queries_blocked') | int(0) %}
+          {% set pihole = states('sensor.pi_hole_ads_blocked_today') | int(0) %}
+          {{ adguard + pihole }}
+        attributes:
+          adguard_blocked: "{{ states('sensor.adguard_home_dns_queries_blocked') }}"
+          pihole_blocked: "{{ states('sensor.pi_hole_ads_blocked_today') }}"
+
+      # Combined Blocking Efficiency
+      - name: "DNS Blocking Efficiency"
+        unique_id: dns_blocking_efficiency
+        unit_of_measurement: "%"
+        state: >
+          {% set total_queries = states('sensor.dns_total_queries') | int(1) %}
+          {% set total_blocked = states('sensor.dns_total_blocked') | int(0) %}
+          {{ ((total_blocked / total_queries) * 100) | round(2) if total_queries > 0 else 0 }}
+        attributes:
+          total_queries: "{{ states('sensor.dns_total_queries') }}"
+          total_blocked: "{{ states('sensor.dns_total_blocked') }}"
+
+  - binary_sensor:
+      # DNS Filtering Health
+      - name: "DNS Filtering Health"
+        unique_id: dns_filtering_health
+        device_class: running
+        state: >
+          {% set adguard = is_state('switch.adguard_home_protection', 'on') %}
+          {% set pihole = states('sensor.pi_hole_status') | lower == 'enabled' %}
+          {{ adguard or pihole }}
+        attributes:
+          adguard_status: "{{ 'Active' if is_state('switch.adguard_home_protection', 'on') else 'Inactive' }}"
+          pihole_status: "{{ states('sensor.pi_hole_status') }}"
+          blocking_services: >
+            {% set services = [] %}
+            {% if is_state('switch.adguard_home_protection', 'on') %}
+              {% set services = services + ['AdGuard'] %}
+            {% endif %}
+            {% if states('sensor.pi_hole_status') | lower == 'enabled' %}
+              {% set services = services + ['Pi-hole'] %}
+            {% endif %}
+            {{ services | join(', ') if services else 'None' }}
+

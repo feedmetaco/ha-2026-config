@@ -1,0 +1,200 @@
+# NOC Dashboard v2 - Scripts
+# Created: 2025-01-18
+# Purpose: Power preset scripts and automation triggers
+
+script:
+  # Preset: All On
+  preset_all_on:
+    alias: "Power Preset: All On"
+    icon: mdi:power-plug
+    description: "Power up everything - all switches, servers, storage, and network equipment"
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.power_preset
+        data:
+          option: "All On"
+      
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_6   # UAG
+            - switch.zz_pwr_pdu_outlet_7   # CORE SWITCH
+            - switch.zz_pwr_pdu_outlet_8   # BACKUP UDMP
+            - switch.zz_pwr_pdu_outlet_9   # UNVR
+            - switch.zz_pwr_pdu_outlet_10  # SYNOLOGY
+            - switch.zz_pwr_pdu_outlet_11  # ISP ROUTER
+            - switch.zz_pwr_pdu_outlet_12  # UDMP-SE
+            - switch.zz_pwr_pdu_usb_outlet_1
+            - switch.zz_pwr_pdu_usb_outlet_2
+            - switch.zz_pwr_pdu_usb_outlet_3
+            - switch.zz_pwr_pdu_usb_outlet_4
+      
+      - service: notify.persistent_notification
+        data:
+          title: "Power Preset Activated"
+          message: "All On preset activated - all devices powered up (~660W)"
+
+  # Preset: Maintenance
+  preset_maintenance:
+    alias: "Power Preset: Maintenance"
+    icon: mdi:wrench
+    description: "Keep only essential services running - core infrastructure and storage"
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.power_preset
+        data:
+          option: "Maintenance"
+      
+      # Turn ON essential devices
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_7   # CORE SWITCH
+            - switch.zz_pwr_pdu_outlet_9   # UNVR
+            - switch.zz_pwr_pdu_outlet_10  # SYNOLOGY
+            - switch.zz_pwr_pdu_outlet_12  # UDMP-SE
+      
+      # Turn OFF non-essential devices
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_6   # UAG
+            - switch.zz_pwr_pdu_outlet_8   # BACKUP UDMP
+            - switch.zz_pwr_pdu_outlet_11  # ISP ROUTER
+            - switch.zz_pwr_pdu_usb_outlet_1
+            - switch.zz_pwr_pdu_usb_outlet_2
+            - switch.zz_pwr_pdu_usb_outlet_3
+            - switch.zz_pwr_pdu_usb_outlet_4
+      
+      - service: notify.persistent_notification
+        data:
+          title: "Power Preset Activated"
+          message: "Maintenance preset activated - essential services only (~200W)"
+
+  # Preset: Core Only
+  preset_core_only:
+    alias: "Power Preset: Core Only"
+    icon: mdi:shield-check
+    description: "Minimal power mode - only critical infrastructure (gateway and core switch)"
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.power_preset
+        data:
+          option: "Core Only"
+      
+      # Turn ON core devices
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_7   # CORE SWITCH
+            - switch.zz_pwr_pdu_outlet_12  # UDMP-SE
+      
+      # Turn OFF all other devices
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_6   # UAG
+            - switch.zz_pwr_pdu_outlet_8   # BACKUP UDMP
+            - switch.zz_pwr_pdu_outlet_9   # UNVR
+            - switch.zz_pwr_pdu_outlet_10  # SYNOLOGY
+            - switch.zz_pwr_pdu_outlet_11  # ISP ROUTER
+            - switch.zz_pwr_pdu_usb_outlet_1
+            - switch.zz_pwr_pdu_usb_outlet_2
+            - switch.zz_pwr_pdu_usb_outlet_3
+            - switch.zz_pwr_pdu_usb_outlet_4
+      
+      - service: notify.persistent_notification
+        data:
+          title: "Power Preset Activated"
+          message: "Core Only preset activated - minimal power mode (~85W)"
+
+  # Preset: Storage Only
+  preset_storage_only:
+    alias: "Power Preset: Storage Only"
+    icon: mdi:nas
+    description: "Power up storage systems only - UNVR and Synology NAS"
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.power_preset
+        data:
+          option: "Storage Only"
+      
+      # Turn ON storage devices
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_9   # UNVR
+            - switch.zz_pwr_pdu_outlet_10  # SYNOLOGY
+      
+      # Turn OFF all other devices
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_6   # UAG
+            - switch.zz_pwr_pdu_outlet_7   # CORE SWITCH
+            - switch.zz_pwr_pdu_outlet_8   # BACKUP UDMP
+            - switch.zz_pwr_pdu_outlet_11  # ISP ROUTER
+            - switch.zz_pwr_pdu_outlet_12  # UDMP-SE
+            - switch.zz_pwr_pdu_usb_outlet_1
+            - switch.zz_pwr_pdu_usb_outlet_2
+            - switch.zz_pwr_pdu_usb_outlet_3
+            - switch.zz_pwr_pdu_usb_outlet_4
+      
+      - service: notify.persistent_notification
+        data:
+          title: "Power Preset Activated"
+          message: "Storage Only preset activated - storage systems active (~108W)"
+
+  # Preset: Emergency Off
+  preset_emergency_off:
+    alias: "Power Preset: Emergency Off"
+    icon: mdi:alert-octagon
+    description: "Immediate shutdown of all non-critical systems"
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.power_preset
+        data:
+          option: "Emergency Off"
+      
+      # Turn OFF all devices except UDMP-SE (critical)
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.zz_pwr_pdu_outlet_6   # UAG
+            - switch.zz_pwr_pdu_outlet_7   # CORE SWITCH
+            - switch.zz_pwr_pdu_outlet_8   # BACKUP UDMP
+            - switch.zz_pwr_pdu_outlet_9   # UNVR
+            - switch.zz_pwr_pdu_outlet_10  # SYNOLOGY
+            - switch.zz_pwr_pdu_outlet_11  # ISP ROUTER
+            - switch.zz_pwr_pdu_usb_outlet_1
+            - switch.zz_pwr_pdu_usb_outlet_2
+            - switch.zz_pwr_pdu_usb_outlet_3
+            - switch.zz_pwr_pdu_usb_outlet_4
+      
+      - service: notify.persistent_notification
+        data:
+          title: "⚠️ Emergency Power Off Activated"
+          message: "Emergency shutdown executed - all non-critical systems powered down"
+
+  # Trigger Switch Port Control PDU v2 Automation
+  trigger_switch_port_control_pdu_v2:
+    alias: "Trigger Switch Port Control (PDU v2)"
+    icon: mdi:lightning-bolt-circle
+    description: "Manually trigger the NFC automation for switch port and PDU control"
+    sequence:
+      - service: automation.trigger
+        target:
+          entity_id: automation.tag_switch_port_control_with_pdu_v2
+        data:
+          skip_condition: false
+      
+      - service: notify.persistent_notification
+        data:
+          title: "Automation Triggered"
+          message: "Switch Port Control (PDU v2) automation has been triggered manually"
+

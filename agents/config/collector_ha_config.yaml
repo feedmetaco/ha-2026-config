@@ -1,0 +1,41 @@
+
+# COLLECTOR AGENT - Complete HA Configuration
+# Generated: 2025-12-06T20:19:08.482023
+
+
+# Bambu Lab Integration - Power Monitoring Template
+template:
+  - sensor:
+      - name: "Bambu Printer Estimated Power"
+        unique_id: bambu_estimated_power
+        unit_of_measurement: "W"
+        device_class: power
+        state: >
+          {% set status = states('sensor.bambu_print_status') %}
+          {% if status == 'idle' %}15{% elif status == 'printing' %}180{% elif status == 'heating' %}350{% else %}50{% endif %}
+
+
+
+# Power Monitoring & Cost Calculation
+utility_meter:
+  daily_energy:
+    source: sensor.total_energy_usage
+    cycle: daily
+  monthly_energy:
+    source: sensor.total_energy_usage  
+    cycle: monthly
+
+template:
+  - sensor:
+      - name: "Electricity Rate"
+        unique_id: electricity_rate
+        state: 0.12
+        unit_of_measurement: "$/kWh"
+        
+      - name: "Today Energy Cost"
+        unique_id: today_energy_cost
+        state: >
+          {{ (states('sensor.daily_energy') | float(0)) * 0.12 | round(2) }}
+        unit_of_measurement: "$"
+        device_class: monetary
+

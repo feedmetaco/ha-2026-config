@@ -1,0 +1,122 @@
+# Bambu Lab Cost Tracking Sensors
+# Created by Agent 3 - December 7, 2025
+# Comprehensive cost analysis using user's electricity rate
+
+template:
+  - sensor:
+      # Real-time Cost Rate ($/hour)
+      - name: "Bambu Lab Cost Rate"
+        unique_id: bambu_lab_cost_rate
+        device_class: monetary
+        unit_of_measurement: "$/h"
+        state: >
+          {% set power_w = states('sensor.bambu_lab_power') | float(0) %}
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0.102566) %}
+          {% set power_kw = power_w / 1000 %}
+          {{ (power_kw * rate) | round(4) }}
+        attributes:
+          current_power: "{{ states('sensor.bambu_lab_power') }} W"
+          electricity_rate: "${{ states('input_number.electricity_rate_per_kwh') }}/kWh"
+          calculation: "Power (kW) × Rate ($/kWh) = Cost rate ($/h)"
+
+      # Today's Cost
+      - name: "Bambu Lab Cost Today"
+        unique_id: bambu_lab_cost_today
+        device_class: monetary
+        unit_of_measurement: "USD"
+        state_class: total
+        state: >
+          {% set energy = states('sensor.bambu_lab_energy_daily') | float(0) %}
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0.102566) %}
+          {{ (energy * rate) | round(3) }}
+        attributes:
+          energy_used: "{{ states('sensor.bambu_lab_energy_daily') }} kWh"
+          rate: "${{ states('input_number.electricity_rate_per_kwh') }}/kWh"
+
+      # This Week's Cost
+      - name: "Bambu Lab Cost This Week"
+        unique_id: bambu_lab_cost_week
+        device_class: monetary
+        unit_of_measurement: "USD"
+        state_class: total
+        state: >
+          {% set energy = states('sensor.bambu_lab_energy_weekly') | float(0) %}
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0.102566) %}
+          {{ (energy * rate) | round(3) }}
+
+      # This Month's Cost
+      - name: "Bambu Lab Cost This Month"
+        unique_id: bambu_lab_cost_month
+        device_class: monetary
+        unit_of_measurement: "USD"
+        state_class: total
+        state: >
+          {% set energy = states('sensor.bambu_lab_energy_monthly') | float(0) %}
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0.102566) %}
+          {{ (energy * rate) | round(3) }}
+
+      # Current Print Job Cost
+      - name: "Bambu Lab Current Print Cost"
+        unique_id: bambu_lab_current_print_cost
+        device_class: monetary
+        unit_of_measurement: "USD"
+        state: >
+          {% set status = states('sensor.print_status') | lower %}
+          {% if status in ['running', 'printing', 'pause'] %}
+            {% set start_time = states('sensor.start_time') %}
+            {% if start_time not in ['unavailable', 'unknown', ''] %}
+              {% set hours = ((as_timestamp(now()) - as_timestamp(start_time)) / 3600) | float(0) %}
+              {% set avg_power = 150 %}
+              {% set rate = states('input_number.electricity_rate_per_kwh') | float(0.102566) %}
+              {{ ((avg_power / 1000) * hours * rate) | round(3) }}
+            {% else %}
+              0
+            {% endif %}
+          {% else %}
+            0
+          {% endif %}
+        attributes:
+          print_status: "{{ states('sensor.print_status') }}"
+          start_time: "{{ states('sensor.start_time') }}"
+          estimated_avg_power: "150 W"
+
+      # Projected Monthly Cost
+      - name: "Bambu Lab Projected Monthly Cost"
+        unique_id: bambu_lab_projected_monthly_cost
+        device_class: monetary
+        unit_of_measurement: "USD"
+        state: >
+          {% set days_elapsed = now().day %}
+          {% set month_cost = states('sensor.bambu_lab_cost_this_month') | float(0) %}
+          {% if days_elapsed > 0 %}
+            {% set daily_avg = month_cost / days_elapsed %}
+            {% set days_in_month = (now().replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1) %}
+            {% set days_in_month_int = days_in_month.day %}
+            {{ (daily_avg * days_in_month_int) | round(2) }}
+          {% else %}
+            {{ month_cost }}
+          {% endif %}
+        attributes:
+          days_elapsed: "{{ now().day }}"
+          current_month_cost: "${{ states('sensor.bambu_lab_cost_this_month') }}"
+          daily_average: "${{ (states('sensor.bambu_lab_cost_this_month') | float(0) / now().day) | round(3) if now().day > 0 else 0 }}"
+
+  # Utility Meters for Energy Tracking
+  - platform: utility_meter
+    source: sensor.bambu_lab_energy
+    name: Bambu Lab Energy Daily
+    unique_id: bambu_lab_energy_daily
+    cycle: daily
+
+  - platform: utility_meter
+    source: sensor.bambu_lab_energy
+    name: Bambu Lab Energy Weekly
+    unique_id: bambu_lab_energy_weekly
+    cycle: weekly
+
+  - platform: utility_meter
+    source: sensor.bambu_lab_energy
+    name: Bambu Lab Energy Monthly
+    unique_id: bambu_lab_energy_monthly
+    cycle: monthly
+

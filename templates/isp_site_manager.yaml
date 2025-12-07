@@ -1,0 +1,136 @@
+- sensor:
+    # Helper to grab a WAN object by its "wan" name
+    # We read from the attributes of sensor.isp_metrics_(sitemanager)
+    # and fall back between camelCase and snake_case field names.
+
+    # ---- XFINITY (WAN1)
+    - name: WAN1 Down Mbps
+      unique_id: wan1_down_mbps
+      unit_of_measurement: "Mbps"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {% set bps = 0 %}
+        {% if o %}
+          {% set bps = (o.downloadBps if 'downloadBps' in o else o.download_bps) | float(0) %}
+        {% endif %}
+        {{ (bps / 1_000_000) | round(1) }}
+      availability: >-
+        {{ state_attr('sensor.isp_metrics_sitemanager','ispMetrics') is not none }}
+
+    - name: WAN1 Up Mbps
+      unique_id: wan1_up_mbps
+      unit_of_measurement: "Mbps"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {% set bps = 0 %}
+        {% if o %}
+          {% set bps = (o.uploadBps if 'uploadBps' in o else o.upload_bps) | float(0) %}
+        {% endif %}
+        {{ (bps / 1_000_000) | round(1) }}
+
+    - name: WAN1 Latency Avg
+      unique_id: wan1_latency_avg_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {{ (o.latencyAvg if o and 'latencyAvg' in o else (o.latency_avg if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN1 Latency Max
+      unique_id: wan1_latency_max_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {{ (o.latencyMax if o and 'latencyMax' in o else (o.latency_max if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN1 Jitter
+      unique_id: wan1_jitter_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {{ (o.jitterAvg if o and 'jitterAvg' in o else (o.jitter_avg if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN1 Packet Loss
+      unique_id: wan1_packet_loss_pct
+      unit_of_measurement: "%"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {{ (o.packetLoss if o and 'packetLoss' in o else (o.packet_loss if o else 0)) | float(0) | round(2) }}
+
+    - name: WAN1 Uptime
+      unique_id: wan1_uptime_pct
+      unit_of_measurement: "%"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','Xfinity')|list|first) if arr else none %}
+        {{ (o.uptime if o and 'uptime' in o else 0) | float(0) | round(1) }}
+
+    # ---- T-MOBILE 5G (WAN2)
+    - name: WAN2 Down Mbps
+      unique_id: wan2_down_mbps
+      unit_of_measurement: "Mbps"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {% set bps = 0 %}
+        {% if o %}
+          {% set bps = (o.downloadBps if 'downloadBps' in o else o.download_bps) | float(0) %}
+        {% endif %}
+        {{ (bps / 1_000_000) | round(1) }}
+
+    - name: WAN2 Up Mbps
+      unique_id: wan2_up_mbps
+      unit_of_measurement: "Mbps"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {% set bps = 0 %}
+        {% if o %}
+          {% set bps = (o.uploadBps if 'uploadBps' in o else o.upload_bps) | float(0) %}
+        {% endif %}
+        {{ (bps / 1_000_000) | round(1) }}
+
+    - name: WAN2 Latency Avg
+      unique_id: wan2_latency_avg_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {{ (o.latencyAvg if o and 'latencyAvg' in o else (o.latency_avg if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN2 Latency Max
+      unique_id: wan2_latency_max_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {{ (o.latencyMax if o and 'latencyMax' in o else (o.latency_max if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN2 Jitter
+      unique_id: wan2_jitter_ms
+      unit_of_measurement: "ms"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {{ (o.jitterAvg if o and 'jitterAvg' in o else (o.jitter_avg if o else 0)) | float(0) | round(0) }}
+
+    - name: WAN2 Packet Loss
+      unique_id: wan2_packet_loss_pct
+      unit_of_measurement: "%"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {{ (o.packetLoss if o and 'packetLoss' in o else (o.packet_loss if o else 0)) | float(0) | round(2) }}
+
+    - name: WAN2 Uptime
+      unique_id: wan2_uptime_pct
+      unit_of_measurement: "%"
+      state: >-
+        {% set arr = state_attr('sensor.isp_metrics_sitemanager','ispMetrics') %}
+        {% set o = (arr|selectattr('wan','equalto','T-Mobile 5G')|list|first) if arr else none %}
+        {{ (o.uptime if o and 'uptime' in o else 0) | float(0) | round(1) }}

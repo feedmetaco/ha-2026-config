@@ -1,0 +1,15 @@
+# Electricity Rate Helper
+# Created by Agent 3 - December 7, 2025
+# Editable via UI for accurate cost calculations
+
+input_number:
+  electricity_rate_per_kwh:
+    name: "Electricity Rate per kWh"
+    min: 0.01
+    max: 1.00
+    step: 0.001
+    initial: 0.102566  # SNOPUD rate from energy dashboard
+    unit_of_measurement: "$/kWh"
+    icon: mdi:currency-usd
+    mode: box
+

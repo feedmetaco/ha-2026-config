@@ -1,0 +1,154 @@
+# Comprehensive Monthly Energy Estimation with Categories
+# Breaks down energy by: Real (monitored), Estimated, and Total
+
+template:
+  - sensor:
+      # Total Real Energy (all monitored devices)
+      - name: "Total Real Energy Consumption"
+        unique_id: total_real_energy_consumption
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        state: >
+          {% set real_devices = [
+            'sensor.snopud_meter_snopud_grid_kwh_total',
+            'sensor.pdu_total_ac_energy',
+            'sensor.ac_sw_core_poe_energy',
+            'sensor.aa_gw_udmp_se_poe_energy',
+            'sensor.ad_sw_flex_2_5_desk_poe_energy',
+            'sensor.ae_sw_officeprinter_poe_4_poe_energy',
+            'sensor.ai_sw_livingroom_poe_4_poe_energy',
+            'sensor.ak_backyard_switch_poe_energy',
+            'sensor.usw_ultra_60w_poe_energy',
+            'sensor.tesla_wall_connector_energy',
+            'sensor.bambu_lab_energy',
+            'sensor.bedroom_energy',
+            'sensor.dining_room_1_energy',
+            'sensor.all_standby_energy',
+            'sensor.office_cabinet_energy',
+            'sensor.entertainment_room_energy'
+          ] %}
+          {{ real_devices | map('states') | map('float', 0) | sum | round(3) }}
+        attributes:
+          category: "Real"
+          device_count: 16
+          is_estimated: false
+          source: "Direct monitoring"
+          note: "Includes Bambu Lab (estimated power → integrated energy)"
+
+      # Total Estimated Energy (unmonitored devices)
+      - name: "Total Estimated Energy Consumption"
+        unique_id: total_estimated_energy_consumption
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        state: "{{ states('sensor.total_estimated_energy') | float(0) }}"
+        attributes:
+          category: "Estimated"
+          device_count: 8
+          is_estimated: true
+          source: "Industry averages"
+          note: "All estimated devices marked with [ESTIMATED]"
+
+      # Total Combined Energy (Real + Estimated)
+      - name: "Total Combined Energy Consumption"
+        unique_id: total_combined_energy_consumption
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        state: >
+          {% set real = states('sensor.total_real_energy_consumption') | float(0) %}
+          {% set estimated = states('sensor.total_estimated_energy_consumption') | float(0) %}
+          {{ (real + estimated) | round(3) }}
+        attributes:
+          category: "Combined"
+          real_energy: "{{ real }}"
+          estimated_energy: "{{ estimated }}"
+          is_estimated: false
+
+      # Monthly Real Energy Estimate
+      - name: "Monthly Real Energy Estimate"
+        unique_id: monthly_real_energy_estimate
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: measurement
+        state: >
+          {% set current_total = states('sensor.total_real_energy_consumption') | float(0) %}
+          {% set last_month = states('sensor.snopud_monthly') | default(0) | float(0) %}
+          {% set days_elapsed = now().day %}
+          {% if days_elapsed > 0 %}
+            {% set daily_avg = (current_total - (current_total - last_month)) / days_elapsed %}
+            {% set estimated_monthly = daily_avg * 30 %}
+          {% else %}
+            {% set estimated_monthly = last_month %}
+          {% endif %}
+          {{ estimated_monthly | round(1) }}
+        attributes:
+          category: "Real"
+          is_estimated: false
+
+      # Monthly Estimated Energy (from unmonitored devices)
+      - name: "Monthly Estimated Energy (Unmonitored)"
+        unique_id: monthly_estimated_energy_unmonitored
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: measurement
+        state: >
+          {# Use utility meters for monthly estimated energy #}
+          {% set estimated_devices = [
+            'sensor.hvac_estimated_monthly',
+            'sensor.water_heater_estimated_monthly',
+            'sensor.refrigerator_estimated_monthly',
+            'sensor.washer_dryer_estimated_monthly',
+            'sensor.dishwasher_estimated_monthly',
+            'sensor.oven_range_estimated_monthly',
+            'sensor.microwave_estimated_monthly',
+            'sensor.phantom_loads_estimated_monthly'
+          ] %}
+          {{ estimated_devices | map('states') | map('float', 0) | sum | round(1) }}
+        attributes:
+          category: "Estimated"
+          is_estimated: true
+          source: "Industry averages"
+          note: "Based on utility_meter monthly cycles"
+
+      # Comprehensive Monthly Energy Estimate (with breakdown)
+      - name: "Comprehensive Monthly Energy Estimate"
+        unique_id: comprehensive_monthly_energy_estimate
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: measurement
+        state: >
+          {% set real_monthly = states('sensor.monthly_real_energy_estimate') | float(0) %}
+          {% set estimated_monthly = states('sensor.monthly_estimated_energy_unmonitored') | float(0) %}
+          {{ (real_monthly + estimated_monthly) | round(1) }}
+        attributes:
+          real_energy_kwh: "{{ real_monthly }}"
+          estimated_energy_kwh: "{{ estimated_monthly }}"
+          total_energy_kwh: "{{ real_monthly + estimated_monthly }}"
+          real_percentage: "{{ ((real_monthly / (real_monthly + estimated_monthly)) * 100) | round(1) if (real_monthly + estimated_monthly) > 0 else 0 }}"
+          estimated_percentage: "{{ ((estimated_monthly / (real_monthly + estimated_monthly)) * 100) | round(1) if (real_monthly + estimated_monthly) > 0 else 0 }}"
+          category: "Comprehensive"
+          last_updated: "{{ now() }}"
+
+      # Monthly Cost Breakdown
+      - name: "Monthly Energy Cost Breakdown"
+        unique_id: monthly_energy_cost_breakdown
+        unit_of_measurement: "USD"
+        device_class: monetary
+        state_class: measurement
+        state: >
+          {% set total_kwh = states('sensor.comprehensive_monthly_energy_estimate') | float(0) %}
+          {% set rate = states('input_number.snopud_rate_per_kwh') | float(0) %}
+          {% set base = states('input_number.snopud_daily_base_fee') | float(0) %}
+          {% set tax = states('input_number.snopud_tax_rate') | float(0) %}
+          {% set days_in_month = 30 %}
+          {% set subtotal = (days_in_month * base) + (total_kwh * rate) %}
+          {{ (subtotal * (1 + tax)) | round(2) }}
+        attributes:
+          real_cost: "{{ (states('sensor.monthly_real_energy_estimate') | float(0) * rate * (1 + tax)) | round(2) }}"
+          estimated_cost: "{{ (states('sensor.monthly_estimated_energy_unmonitored') | float(0) * rate * (1 + tax)) | round(2) }}"
+          base_fee: "{{ (days_in_month * base) | round(2) }}"
+          tax_amount: "{{ (subtotal * tax) | round(2) }}"
+          category: "Cost Breakdown"
+

@@ -1,0 +1,54 @@
+{
+  "dashboard": {
+    "title": "\ud83d\udcca Sensor Analytics - 968 Sensors",
+    "uid": "noc-sensors",
+    "tags": [
+      "noc",
+      "sensors",
+      "analytics"
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Top 20 Most Active Sensors",
+        "type": "table",
+        "gridPos": {
+          "h": 12,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "rawSql": "\n                        SELECT entity_id, state, last_updated\n                        FROM states\n                        WHERE entity_id LIKE 'sensor.%'\n                        ORDER BY last_updated DESC\n                        LIMIT 20\n                    ",
+            "format": "table",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Sensor State Changes (24h)",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 12
+        },
+        "targets": [
+          {
+            "rawSql": "\n                        SELECT last_updated as time, COUNT(*) as changes\n                        FROM states\n                        WHERE entity_id LIKE 'sensor.%'\n                        AND last_updated > NOW() - INTERVAL 24 HOUR\n                        GROUP BY DATE_FORMAT(last_updated, '%Y-%m-%d %H:00:00')\n                        ORDER BY time\n                    ",
+            "datasource": "HomeAssistant_InfluxDB"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}

@@ -1,0 +1,224 @@
+title: NOC V3 - Device Details
+views:
+  # DEVICE: Core Switch (with port grid)
+  - title: Core Switch Details
+    path: core-switch
+    icon: mdi:switch
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "device:core_switch"
+    cards:
+      # Breadcrumb Navigation
+      - type: custom:button-card
+        name: "Home > UniFi > Core Switch"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "section:unifi"
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - padding: 8px
+
+      # Device Info Header
+      - type: entities
+        title: AC_SW_CORE - Device Information
+        entities:
+          - entity: binary_sensor.ac_sw_core
+            name: Status
+          - entity: sensor.ac_sw_core_poe_used
+            name: PoE Power Used
+          - entity: sensor.ac_sw_core_poe_utilization
+            name: PoE Utilization
+          - entity: sensor.ac_sw_core_clients
+            name: Connected Clients
+
+      # Port Grid - PoE Controlled Ports
+      - type: markdown
+        content: |
+          ### 🔌 PoE Port Controls
+      
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, 1fr)
+          gap: 12px
+        cards:
+          - type: custom:button-card
+            entity: switch.ac_sw_core_port_43_poe
+            name: "Port 43"
+            show_state: true
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: rgba(76, 175, 80, 0.2)
+                    - border: 2px solid #4caf50
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(30, 30, 30, 0.4)
+                    - border: 2px solid rgba(255, 255, 255, 0.2)
+
+          - type: custom:button-card
+            entity: switch.ac_sw_core_port_45_poe
+            name: "Port 45"
+            show_state: true
+            tap_action:
+              action: toggle
+
+          - type: custom:button-card
+            entity: switch.ac_sw_core_port_47_poe
+            name: "Port 47"
+            show_state: true
+            tap_action:
+              action: toggle
+
+      # PoE Power History
+      - type: custom:apexcharts-card
+        header:
+          title: "PoE Power Usage - Last 6 Hours"
+        graph_span: 6h
+        series:
+          - entity: sensor.ac_sw_core_poe_used
+            name: PoE Power
+            type: area
+            color: "#4caf50"
+            opacity: 0.3
+
+  # DEVICE: Gateway (UDMP-SE)
+  - title: Gateway Details
+    path: gateway
+    icon: mdi:router
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "device:gateway"
+    cards:
+      # Breadcrumb
+      - type: custom:button-card
+        name: "Home > UniFi > Gateway"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "section:unifi"
+
+      # Gateway Info
+      - type: entities
+        title: AA_GW_UDMP_SE - Gateway Information
+        entities:
+          - entity: binary_sensor.aa_gw_udmp_se
+            name: Status
+          - entity: sensor.aa_gw_udmp_se_clients
+            name: Connected Clients
+          - entity: sensor.aa_gw_udmp_se_poe_used
+            name: PoE Power Used
+          - entity: sensor.processor_use_percent
+            name: CPU Usage
+          - entity: sensor.memory_use_percent
+            name: Memory Usage
+
+      # WAN Status
+      - type: horizontal-stack
+        cards:
+          - type: statistic
+            entity: sensor.wan1_down_mbps
+            name: WAN1 Download
+            icon: mdi:download
+
+          - type: statistic
+            entity: sensor.wan1_up_mbps
+            name: WAN1 Upload
+            icon: mdi:upload
+
+      # Client List (if available)
+      - type: markdown
+        content: |
+          ### 👥 Connected Clients
+          Click device for details
+
+  # DEVICE: UNVR
+  - title: UNVR Details
+    path: unvr
+    icon: mdi:video-box
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "device:unvr"
+    cards:
+      # Breadcrumb
+      - type: custom:button-card
+        name: "Home > UniFi > UNVR"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "section:unifi"
+
+      # UNVR Info
+      - type: entities
+        title: UNVR - Video Recorder
+        entities:
+          - entity: switch.zz_pwr_pdu_outlet_9
+            name: Power Status
+          - entity: sensor.zz_pwr_pdu_outlet_9_outlet_power
+            name: Power Draw
+          - entity: sensor.pdu_outlet_9_energy
+            name: Energy Usage
+
+      # Power History
+      - type: custom:apexcharts-card
+        header:
+          title: "UNVR Power Usage - Last 24 Hours"
+        graph_span: 24h
+        series:
+          - entity: sensor.zz_pwr_pdu_outlet_9_outlet_power
+            name: Power Draw
+            type: area
+            color: "#9c27b0"
+            opacity: 0.3
+
+  # DEVICE: NAS (Synology)
+  - title: NAS Details
+    path: nas
+    icon: mdi:nas
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "device:nas"
+    cards:
+      # Breadcrumb
+      - type: custom:button-card
+        name: "Home > Storage > NAS"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "overview"
+
+      # NAS Info
+      - type: entities
+        title: Synology NAS
+        entities:
+          - entity: switch.zz_pwr_pdu_outlet_10
+            name: Power Status
+          - entity: sensor.zz_pwr_pdu_outlet_10_outlet_power
+            name: Power Draw
+          - entity: sensor.pdu_outlet_10_energy
+            name: Energy Usage
+

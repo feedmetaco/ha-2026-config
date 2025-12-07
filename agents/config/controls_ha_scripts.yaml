@@ -1,0 +1,30 @@
+
+# CONTROLS AUTOMATION AGENT - HA Scripts
+
+unifi_bounce_port:
+  alias: "Bounce Switch Port"
+  mode: single
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id: "{{ port_entity }}"
+    - delay: {seconds: 5}
+    - service: switch.turn_on
+      target:
+        entity_id: "{{ port_entity }}"
+    - service: logbook.log
+      data:
+        name: "Port Bounce"
+        message: "Port bounced by automation"
+
+unifi_poe_cycle:
+  alias: "PoE Power Cycle"
+  mode: single
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id: "{{ poe_entity }}"
+    - delay: {seconds: 10}
+    - service: switch.turn_on
+      target:
+        entity_id: "{{ poe_entity }}"

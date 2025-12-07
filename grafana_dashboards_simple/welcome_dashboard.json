@@ -1,0 +1,77 @@
+{
+  "dashboard": {
+    "title": "\ud83c\udfe0 Your HA Overview - 2,479 Entities",
+    "uid": "ha-simple-overview",
+    "tags": [
+      "ha",
+      "overview",
+      "master-agent"
+    ],
+    "timezone": "browser",
+    "editable": true,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Welcome to Your HA Grafana!",
+        "type": "text",
+        "gridPos": {
+          "h": 4,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "options": {
+          "content": "\n# \ud83c\udf89 Your Home Assistant Grafana Dashboard\n\n**Total Entities:** 2,479  \n**Sensors:** 968  \n**Switches:** 449  \n**Binary Sensors:** 256  \n**Cameras:** 29  \n\n## Next Steps:\n1. \u2705 This dashboard imported successfully!\n2. \ud83d\udcca Set up data source to see real data\n3. \ud83d\ude80 Import other 3 dashboards\n\n**Master Agent has prepared everything for you!**\n                    ",
+          "mode": "markdown"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Your HA Stats",
+        "type": "stat",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 0,
+          "y": 4
+        },
+        "options": {
+          "graphMode": "none",
+          "textMode": "value_and_name",
+          "colorMode": "value"
+        },
+        "targets": [
+          {
+            "refId": "A",
+            "datasource": {
+              "type": "testdata",
+              "uid": "PD8C576611E62080A"
+            },
+            "scenarioId": "random_walk"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "value": "null",
+                "text": "2479"
+              }
+            ],
+            "color": {
+              "mode": "fixed",
+              "fixedColor": "blue"
+            }
+          },
+          "overrides": []
+        },
+        "pluginVersion": "11.0.0"
+      }
+    ],
+    "schemaVersion": 39,
+    "version": 1
+  },
+  "overwrite": true
+}

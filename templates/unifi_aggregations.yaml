@@ -1,0 +1,73 @@
+# UniFi Network Aggregation Sensors
+# Created by Agent 3 - December 7, 2025
+# Device stats, client counts, availability tracking
+
+template:
+  - sensor:
+      # Total UniFi Clients
+      - name: "UniFi Total Clients"
+        unique_id: unifi_total_clients
+        state_class: measurement
+        state: >
+          {% set devices = [
+            'sensor.aa_gw_udmp_se_clients',
+            'sensor.ac_sw_core_clients',
+            'sensor.ad_sw_flex_2_5_desk_clients',
+            'sensor.ae_sw_officeprinter_poe_4_clients',
+            'sensor.ai_sw_livingroom_poe_4_clients'
+          ] %}
+          {{ devices | map('states') | map('int', 0) | sum }}
+        attributes:
+          gateway_clients: "{{ states('sensor.aa_gw_udmp_se_clients') }}"
+          switch_clients: "{{ states('sensor.ac_sw_core_clients') }}"
+
+      # Network Device Availability
+      - name: "UniFi Device Availability"
+        unique_id: unifi_device_availability
+        unit_of_measurement: "%"
+        state: >
+          {% set total_devices = 7 %}
+          {% set devices = [
+            'binary_sensor.aa_gw_udmp_se',
+            'binary_sensor.ac_sw_core',
+            'binary_sensor.ad_sw_flex_2_5_desk',
+            'binary_sensor.ae_sw_officeprinter_poe_4',
+            'binary_sensor.ai_sw_livingroom_poe_4',
+            'binary_sensor.ak_backyard_switch',
+            'binary_sensor.usw_ultra_60w'
+          ] %}
+          {% set online = devices | select('is_state', 'on') | list | count %}
+          {{ ((online / total_devices) * 100) | round(1) }}
+        attributes:
+          online_count: >
+            {% set devices = [
+              'binary_sensor.aa_gw_udmp_se',
+              'binary_sensor.ac_sw_core',
+              'binary_sensor.ad_sw_flex_2_5_desk',
+              'binary_sensor.ae_sw_officeprinter_poe_4',
+              'binary_sensor.ai_sw_livingroom_poe_4',
+              'binary_sensor.ak_backyard_switch',
+              'binary_sensor.usw_ultra_60w'
+            ] %}
+            {{ devices | select('is_state', 'on') | list | count }}
+          total_devices: 7
+
+      # Total Network Power (PDU + PoE)
+      - name: "Total Network Power Usage"
+        unique_id: total_network_power_usage
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set pdu_network = [
+            'sensor.zz_pwr_pdu_outlet_6_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_7_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_11_outlet_power',
+            'sensor.zz_pwr_pdu_outlet_12_outlet_power'
+          ] | map('states') | map('float', 0) | sum %}
+          {% set poe = states('sensor.unifi_total_poe_power_used') | float(0) %}
+          {{ (pdu_network + poe) | round(1) }}
+        attributes:
+          pdu_power: "{{ pdu_network | round(1) }} W"
+          poe_power: "{{ states('sensor.unifi_total_poe_power_used') }} W"
+

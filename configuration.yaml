@@ -1,0 +1,554 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+automation split: !include_dir_merge_list automations/
+script: !include scripts.yaml
+script split: !include_dir_merge_named scripts/
+scene: !include scenes.yaml
+
+
+# Enable native streaming pipeline for cameras
+stream:
+
+# HA behind Cloudflare/Proxy
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - 172.30.33.0/24
+    - 192.168.10.0/24
+
+# Powercalc
+powercalc:
+
+# Helpers
+input_boolean:
+  kitchen_lights_override:
+    name: Keep Kitchen Lights On
+    icon: mdi:lightbulb-on-outline
+  skip_tesla_check:
+    name: Skip Tesla Check Tonight
+    icon: mdi:car-electric
+  doorbell_camera_show:
+    name: Show Doorbell Camera Feed
+    initial: off
+    icon: mdi:camera
+
+# Shell commands
+shell_command:
+  clean_old_snapshots: "rm -f /config/www/snapshots/*.jpg"
+  clean_doorbell_snapshots: "find /config/www/snapshots/doorbell -name '*.jpg' -mtime +1 -delete"
+  export_entities: "jq -r '.data.entities[] | .entity_id' /config/.storage/core.entity_registry > /config/entity_list.txt"
+  get_isp_metrics: bash /config/scripts/get_isp_data.sh
+  test_dns_cloudflare: bash /config/scripts/dns_test_simple.sh 1.1.1.1 google.com
+  test_dns_google: bash /config/scripts/dns_test_simple.sh 8.8.8.8 google.com
+  test_dns_router: bash /config/scripts/dns_test_simple.sh 192.168.10.1 google.com
+
+# TTS
+tts:
+  - platform: google_translate
+    service_name: google_say
+    language: "en"
+
+# Camera
+camera:
+  - platform: generic
+    name: Front Door RTSP
+    still_image_url: "https://deshikuro.com/local/snapshots/front_door_latest.jpg"
+    stream_source: "rtsps://192.168.1.217:7441/fqkpUujYiDgbgagV?enableSrtp"
+    verify_ssl: false
+
+# Sensors (file + history + command_line + integration)
+sensor:
+  # UniFi PoE Energy sensors (integrated from power)
+  - platform: integration
+    source: sensor.ac_sw_core_poe_used
+    name: AC_SW_CORE PoE Energy
+    unique_id: ac_sw_core_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.aa_gw_udmp_se_poe_used
+    name: AA_GW_UDMP_SE PoE Energy
+    unique_id: aa_gw_udmp_se_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ad_sw_flex_2_5_desk_poe_used
+    name: AD_SW_FLEX_2_5_DESK PoE Energy
+    unique_id: ad_sw_flex_2_5_desk_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ae_sw_officeprinter_poe_4_poe_used
+    name: AE_SW_OFFICEPRINTER_POE_4 PoE Energy
+    unique_id: ae_sw_officeprinter_poe_4_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ai_sw_livingroom_poe_4_poe_used
+    name: AI_SW_LIVINGROOM_POE_4 PoE Energy
+    unique_id: ai_sw_livingroom_poe_4_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.ak_backyard_switch_poe_used
+    name: AK_BACKYARD_SWITCH PoE Energy
+    unique_id: ak_backyard_switch_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.usw_ultra_60w_poe_used
+    name: USW_ULTRA_60W PoE Energy
+    unique_id: usw_ultra_60w_poe_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+
+  # PDU Energy sensors (integrated from power)
+  - platform: integration
+    source: sensor.zz_pwr_pdu_ac_power_consumption
+    name: PDU Total AC Energy
+    unique_id: pdu_total_ac_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_6_outlet_power
+    name: PDU Outlet 6 Energy
+    unique_id: pdu_outlet_6_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_7_outlet_power
+    name: PDU Outlet 7 Energy
+    unique_id: pdu_outlet_7_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_8_outlet_power
+    name: PDU Outlet 8 Energy
+    unique_id: pdu_outlet_8_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_9_outlet_power
+    name: PDU Outlet 9 Energy
+    unique_id: pdu_outlet_9_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_10_outlet_power
+    name: PDU Outlet 10 Energy
+    unique_id: pdu_outlet_10_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_11_outlet_power
+    name: PDU Outlet 11 Energy
+    unique_id: pdu_outlet_11_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_12_outlet_power
+    name: PDU Outlet 12 Energy
+    unique_id: pdu_outlet_12_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+
+  # Bambu Lab 3D Printer Energy (integrated from estimated power)
+  - platform: integration
+    source: sensor.bambu_lab_power
+    name: Bambu Lab Energy
+    unique_id: bambu_lab_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+
+  # Estimated device energy sensors (integrated from estimated power)
+  - platform: integration
+    source: sensor.hvac_system_power_estimated
+    name: HVAC System Energy (ESTIMATED)
+    unique_id: hvac_system_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.water_heater_power_estimated
+    name: Water Heater Energy (ESTIMATED)
+    unique_id: water_heater_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.refrigerator_power_estimated
+    name: Refrigerator Energy (ESTIMATED)
+    unique_id: refrigerator_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.washer_dryer_power_estimated
+    name: Washer Dryer Energy (ESTIMATED)
+    unique_id: washer_dryer_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.dishwasher_power_estimated
+    name: Dishwasher Energy (ESTIMATED)
+    unique_id: dishwasher_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.oven_range_power_estimated
+    name: Oven Range Energy (ESTIMATED)
+    unique_id: oven_range_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.microwave_power_estimated
+    name: Microwave Energy (ESTIMATED)
+    unique_id: microwave_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.phantom_loads_power_estimated
+    name: Phantom Loads Energy (ESTIMATED)
+    unique_id: phantom_loads_energy_estimated
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.total_estimated_power
+    name: Total Estimated Energy (ESTIMATED)
+    unique_id: total_estimated_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+
+# Sensors (file + history + command_line)
+sensor:
+  - platform: file
+    file_path: /var/log/bootcheck.log
+    name: Pi Boot Health
+    scan_interval: 60
+
+  - platform: history_stats
+    name: Xfinity Uptime %
+    entity_id: binary_sensor.73_109_80_161
+    state: "on"
+    type: ratio
+    duration: { hours: 24 }
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: T-Mobile Uptime %
+    entity_id: binary_sensor.192_168_12_177
+    state: "on"
+    type: ratio
+    duration: { hours: 24 }
+    end: "{{ now() }}"
+
+  # DNS Performance Monitoring via command_line sensors (using ping as fallback)
+  - platform: command_line
+    name: DNS Cloudflare Response Time
+    unique_id: dns_cloudflare_response_ms
+    command: 'ping -c 1 -W 2 1.1.1.1 2>/dev/null | grep "time=" | cut -d"=" -f4 | cut -d" " -f1 || echo "999"'
+    unit_of_measurement: "ms"
+    scan_interval: 300  # Test every 5 minutes
+    value_template: >
+      {% set result = value | float(999) %}
+      {{ result if result < 999 else None }}
+
+  - platform: command_line
+    name: DNS Google Response Time
+    unique_id: dns_google_response_ms
+    command: 'ping -c 1 -W 2 8.8.8.8 2>/dev/null | grep "time=" | cut -d"=" -f4 | cut -d" " -f1 || echo "999"'
+    unit_of_measurement: "ms"
+    scan_interval: 300
+    value_template: >
+      {% set result = value | float(999) %}
+      {{ result if result < 999 else None }}
+
+  - platform: command_line
+    name: DNS Router Response Time
+    unique_id: dns_router_response_ms
+    command: 'ping -c 1 -W 2 192.168.10.1 2>/dev/null | grep "time=" | cut -d"=" -f4 | cut -d" " -f1 || echo "999"'
+    unit_of_measurement: "ms"
+    scan_interval: 300
+    value_template: >
+      {% set result = value | float(999) %}
+      {{ result if result < 999 else None }}
+
+  - platform: command_line
+    name: DNS Cloudflare Secondary Response Time
+    unique_id: dns_cloudflare_secondary_response_ms
+    command: 'ping -c 1 -W 2 1.0.0.1 2>/dev/null | grep "time=" | cut -d"=" -f4 | cut -d" " -f1 || echo "999"'
+    unit_of_measurement: "ms"
+    scan_interval: 300
+    value_template: >
+      {% set result = value | float(999) %}
+      {{ result if result < 999 else None }}
+
+  # Removed broken command_line ISP metrics sensors; using REST sensors fed by /local/isp_metrics.json
+
+# REST sensors (MERGED into one block)
+rest:
+  # UniFi sysinfo
+  - resource: https://192.168.10.1/proxy/network/api/s/default/stat/sysinfo
+    method: GET
+    scan_interval: 60
+    verify_ssl: false
+    headers:
+      X-API-KEY: oYn6DPR2utjSy_LdD1C1AW99vxwqeHJn
+      Accept: application/json
+    sensor:
+      - name: "UniFi UDMP Hostname"
+        value_template: "{{ value_json.data[0].hostname }}"
+      - name: "UniFi UDMP Uptime"
+        value_template: "{{ value_json.data[0].uptime }}"
+        unit_of_measurement: "s"
+      - name: "UniFi UDMP Version"
+        value_template: "{{ value_json.data[0].version }}"
+      - name: "UniFi UDMP Online"
+        value_template: "true"
+      - name: "UniFi UDMP Sysinfo"
+        value_template: "{{ value_json.data[0].hostname }}"
+        json_attributes_path: "$.data[0]"
+        json_attributes:
+          - loadavg_1
+          - loadavg_5
+          - loadavg_15
+
+  # (Optional) raw sysinfo payload
+  - resource: https://192.168.10.1/proxy/network/api/s/default/stat/sysinfo
+    method: GET
+    verify_ssl: false
+    scan_interval: 60
+    headers:
+      X-API-KEY: oYn6DPR2utjSy_LdD1C1AW99vxwqeHJn
+      Accept: application/json
+    sensor:
+      - name: "UniFi Sysinfo Raw"
+        value_template: "{{ value_json }}"
+
+  # UniFi health → WAN speedtest last run (DISABLED - speedtest_status not available in API response)
+  # - resource: https://192.168.10.1/proxy/network/api/s/default/stat/health
+  #   method: GET
+  #   scan_interval: 60
+  #   verify_ssl: false
+  #   headers:
+  #     X-API-KEY: oYn6DPR2utjSy_LdD1C1AW99vxwqeHJn
+  #     Accept: application/json
+  #   sensor:
+  #     - name: "UniFi WAN Down Mbps"
+  #       value_template: >
+  #         {% if value_json.data and value_json.data|length > 0 and value_json.data[0].speedtest_status is defined and value_json.data[0].speedtest_status.status == 'Success' %}
+  #           {{ value_json.data[0].speedtest_status.xput_download | round(2) }}
+  #         {% else %}
+  #           0
+  #         {% endif %}
+  #       unit_of_measurement: "Mbps"
+  #     - name: "UniFi WAN Up Mbps"
+  #       value_template: >
+  #         {% if value_json.data and value_json.data|length > 0 and value_json.data[0].speedtest_status is defined and value_json.data[0].speedtest_status.status == 'Success' %}
+  #           {{ value_json.data[0].speedtest_status.xput_upload | round(2) }}
+  #         {% else %}
+  #           0
+  #         {% endif %}
+  #       unit_of_measurement: "Mbps"
+
+  # Local ISP metrics JSON (fallback for chips)
+  - resource: http://127.0.0.1:8123/local/isp_metrics.json
+    scan_interval: 3600
+    sensor:
+      - name: ISP Name
+        unique_id: isp_name_rest
+        value_template: "{{ value_json.isp }}"
+
+      - name: ISP Download Mbps
+        unique_id: isp_download_mbps_rest
+        unit_of_measurement: "Mbps"
+        value_template: "{{ (value_json.download_bps | int / 1_000_000) | round(1) }}"
+
+      - name: ISP Upload Mbps
+        unique_id: isp_upload_mbps_rest
+        unit_of_measurement: "Mbps"
+        value_template: "{{ (value_json.upload_bps | int / 1_000_000) | round(1) }}"
+
+      - name: ISP Avg Latency
+        unique_id: isp_avg_latency_rest
+        unit_of_measurement: "ms"
+        value_template: "{{ value_json.avg_latency }}"
+
+      - name: ISP Max Latency
+        unique_id: isp_max_latency_rest
+        unit_of_measurement: "ms"
+        value_template: "{{ value_json.max_latency }}"
+
+      - name: ISP Packet Loss
+        unique_id: isp_packet_loss_rest
+        unit_of_measurement: "%"
+        value_template: "{{ value_json.packet_loss }}"
+
+      - name: ISP Uptime
+        unique_id: isp_uptime_rest
+        unit_of_measurement: "%"
+        value_template: "{{ value_json.uptime }}"
+
+  # IQVIA Pollen & Allergy Data (configured via UI integration)
+  # To add: Settings > Devices & Services > Add Integration > Search "IQVIA"
+  # Use ZIP code: 98270 (Marysville, WA)
+  # This will create sensors for allergy index, asthma index, and cold/flu tracking
+
+# Utility meter
+utility_meter:
+  snopud_monthly:
+    source: input_number.snopud_total_kwh
+    cycle: monthly
+    offset: { days: 11 }
+  
+  # Estimated device energy meters (for proper integration)
+  # These integrate estimated power sensors to create energy sensors
+  hvac_estimated_monthly:
+    source: sensor.hvac_system_power_estimated
+    cycle: monthly
+  water_heater_estimated_monthly:
+    source: sensor.water_heater_power_estimated
+    cycle: monthly
+  refrigerator_estimated_monthly:
+    source: sensor.refrigerator_power_estimated
+    cycle: monthly
+  washer_dryer_estimated_monthly:
+    source: sensor.washer_dryer_power_estimated
+    cycle: monthly
+  dishwasher_estimated_monthly:
+    source: sensor.dishwasher_power_estimated
+    cycle: monthly
+  oven_range_estimated_monthly:
+    source: sensor.oven_range_power_estimated
+    cycle: monthly
+  microwave_estimated_monthly:
+    source: sensor.microwave_power_estimated
+    cycle: monthly
+  phantom_loads_estimated_monthly:
+    source: sensor.phantom_loads_power_estimated
+    cycle: monthly
+
+# >>> All template sensors are now in /config/templates/
+template: !include_dir_merge_list templates
+
+# Your SnoPUD numbers (unchanged)
+input_number: !include_dir_merge_named input_number
+
+homeassistant:
+  packages: !include_dir_named packages
+
+# Recorder maintenance: shorten retention and exclude noisy entities/domains
+recorder:
+  purge_keep_days: 14
+  auto_purge: true
+  exclude:
+    entities:
+      - sensor.unifi_sysinfo_raw
+    domains:
+      - camera
+      - ring
+      - update
+
+
+# ============================================================================
+# INFLUXDB INTEGRATION - Master Agent Auto-Configuration
+# Sends your 968 sensors to InfluxDB for Grafana visualization
+# Date: 2025-12-06 21:30:03
+# ============================================================================
+influxdb:
+  api_version: 1
+  host: 192.168.10.6
+  port: 8086
+  database: homeassistant
+  username: homeassistant
+  password: welcome
+  max_retries: 3
+  default_measurement: state
+  override_measurement: entityId
+  tags:
+    instance: production
+    source: home_assistant
+  tags_attributes:
+    - friendly_name
+    - device_class
+  component_config_glob:
+    sensor.*:
+      override_measurement: sensor
+    switch.*:
+      override_measurement: switch
+    binary_sensor.*:
+      override_measurement: binary_sensor
+  include:
+    domains:
+      - sensor
+      - binary_sensor
+      - switch
+      - light
+      - climate
+      - camera
+      - device_tracker
+    entity_globs:
+      - sensor.*power*
+      - sensor.*energy*
+      - sensor.*temperature*
+      - sensor.*humidity*
+  exclude:
+    entities:
+      - sensor.time
+      - sensor.date
+      - sensor.uptime
+    entity_globs:
+      - sensor.*_uptime
+      - sensor.last_boot
+      - binary_sensor.*_updating
+# ============================================================================

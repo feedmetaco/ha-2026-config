@@ -1,0 +1,31 @@
+
+# Missing Data Alert Configuration
+
+automation:
+  - alias: "Alert - Critical Sensor Unavailable"
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.total_power
+          - sensor.speedtest_download
+        to: 'unavailable'
+        for:
+          minutes: 5
+    action:
+      - service: notify.notify
+        data:
+          title: "🚨 Critical Sensor Unavailable"
+          message: "{{ trigger.entity_id }} unavailable for 5 minutes"
+
+  - alias: "Alert - Network Offline"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.internet_connection
+        to: 'off'
+        for:
+          minutes: 2
+    action:
+      - service: notify.notify
+        data:
+          title: "🔴 Internet Offline"
+          message: "Internet connection lost"

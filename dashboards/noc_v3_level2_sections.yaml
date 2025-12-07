@@ -1,0 +1,447 @@
+title: NOC V3 - Sections
+views:
+  # SECTION: Internet Health
+  - title: Internet Health
+    path: internet
+    icon: mdi:web
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "section:internet"
+    cards:
+      # Back Button
+      - type: custom:button-card
+        name: "← Back to Overview"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "overview"
+        styles:
+          card:
+            - background: transparent
+            - border: 1px solid rgba(255, 255, 255, 0.2)
+            - padding: 12px
+
+      # WAN Comparison
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(2, 1fr)
+          gap: 16px
+        cards:
+          # WAN1 (Xfinity)
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  ### 🌐 WAN1 - Xfinity
+              - type: entities
+                entities:
+                  - entity: sensor.wan1_down_mbps
+                    name: Download
+                  - entity: sensor.wan1_up_mbps
+                    name: Upload
+                  - entity: sensor.wan1_latency_avg
+                    name: Latency
+                  - entity: sensor.wan1_packet_loss
+                    name: Packet Loss
+                  - entity: sensor.wan1_uptime
+                    name: Uptime
+
+          # WAN2 (T-Mobile 5G)
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  ### 📱 WAN2 - T-Mobile 5G
+              - type: entities
+                entities:
+                  - entity: sensor.wan2_down_mbps
+                    name: Download
+                  - entity: sensor.wan2_up_mbps
+                    name: Upload
+                  - entity: sensor.wan2_latency_avg
+                    name: Latency
+                  - entity: sensor.wan2_packet_loss
+                    name: Packet Loss
+
+      # Speed History Charts
+      - type: custom:apexcharts-card
+        header:
+          title: "Internet Speed - Last 24 Hours"
+        graph_span: 24h
+        series:
+          - entity: sensor.wan1_down_mbps
+            name: WAN1 Download
+            color: "#00d9ff"
+          - entity: sensor.wan1_up_mbps
+            name: WAN1 Upload
+            color: "#2196f3"
+          - entity: sensor.wan2_down_mbps
+            name: WAN2 Download
+            color: "#9c27b0"
+
+      - type: custom:apexcharts-card
+        header:
+          title: "Latency & Packet Loss"
+        graph_span: 24h
+        series:
+          - entity: sensor.wan1_latency_avg
+            name: WAN1 Latency
+            color: "#ffc107"
+            yaxis_id: latency
+          - entity: sensor.wan1_packet_loss
+            name: WAN1 Packet Loss
+            color: "#f44336"
+            yaxis_id: loss
+        yaxis:
+          - id: latency
+            apex_config:
+              title:
+                text: "Latency (ms)"
+          - id: loss
+            opposite: true
+            apex_config:
+              title:
+                text: "Packet Loss (%)"
+
+  # SECTION: DNS Filtering
+  - title: DNS Filtering
+    path: dns
+    icon: mdi:shield-check
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "section:dns"
+    cards:
+      # Back Button
+      - type: custom:button-card
+        name: "← Back to Overview"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "overview"
+
+      # AdGuard vs Pi-hole Comparison
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(2, 1fr)
+          gap: 16px
+        cards:
+          # AdGuard
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  ### 🛡️ AdGuard Home
+              - type: entities
+                entities:
+                  - entity: sensor.adguard_home_dns_queries
+                    name: Total Queries
+                  - entity: sensor.adguard_home_dns_queries_blocked
+                    name: Blocked
+                  - entity: sensor.adguard_home_dns_queries_blocked_ratio
+                    name: Block Rate
+                  - entity: switch.adguard_home_protection
+                    name: Protection
+                  - entity: switch.adguard_home_filtering
+                    name: Filtering
+
+          # Pi-hole
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  ### 🥧 Pi-hole
+              - type: entities
+                entities:
+                  - entity: sensor.pi_hole_dns_queries_today
+                    name: Queries Today
+                  - entity: sensor.pi_hole_ads_blocked_today
+                    name: Blocked Today
+                  - entity: sensor.pi_hole_ads_percentage_blocked_today
+                    name: Block Rate
+                  - entity: sensor.pi_hole_status
+                    name: Status
+                  - entity: switch.pi_hole
+                    name: Enable/Disable
+
+      # Combined Query Chart
+      - type: custom:apexcharts-card
+        header:
+          title: "DNS Queries - Last 24 Hours"
+        graph_span: 24h
+        series:
+          - entity: sensor.adguard_home_dns_queries
+            name: AdGuard Queries
+            type: area
+            color: "#00d9ff"
+            opacity: 0.3
+          - entity: sensor.pi_hole_dns_queries_today
+            name: Pi-hole Queries
+            type: area
+            color: "#9c27b0"
+            opacity: 0.3
+          - entity: sensor.dns_total_blocked
+            name: Total Blocked
+            type: line
+            stroke_width: 3
+            color: "#f44336"
+
+  # SECTION: UniFi Infrastructure
+  - title: UniFi Infrastructure
+    path: unifi
+    icon: mdi:network
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "section:unifi"
+    cards:
+      # Back Button
+      - type: custom:button-card
+        name: "← Back to Overview"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "overview"
+
+      # Device Grid (Clickable)
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(3, 1fr)
+          gap: 16px
+        cards:
+          # Gateway
+          - type: custom:button-card
+            entity: binary_sensor.aa_gw_udmp_se
+            name: UDMP-SE Gateway
+            icon: mdi:router
+            show_state: true
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.noc_navigation_level
+                option: "device:gateway"
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(67, 160, 71, 0.1))
+                    - border-left: 4px solid #4caf50
+                  icon:
+                    - color: "#4caf50"
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(30, 30, 30, 0.4)
+                    - border-left: 4px solid rgba(255, 255, 255, 0.2)
+                  icon:
+                    - color: rgba(255, 255, 255, 0.3)
+            custom_fields:
+              stats: |
+                [[[ 
+                  const clients = states['sensor.aa_gw_udmp_se_clients']?.state || '0';
+                  const poe = states['sensor.aa_gw_udmp_se_poe_used']?.state || '0';
+                  return `<div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">${clients} clients • ${poe}W PoE</div>`;
+                ]]]
+
+          # Core Switch
+          - type: custom:button-card
+            entity: binary_sensor.ac_sw_core
+            name: Core Switch
+            icon: mdi:switch
+            show_state: true
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.noc_navigation_level
+                option: "device:core_switch"
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(67, 160, 71, 0.1))
+                    - border-left: 4px solid #4caf50
+                  icon:
+                    - color: "#4caf50"
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(30, 30, 30, 0.4)
+                    - border-left: 4px solid rgba(255, 255, 255, 0.2)
+            custom_fields:
+              stats: |
+                [[[ 
+                  const poe = states['sensor.ac_sw_core_poe_used']?.state || '0';
+                  const util = states['sensor.ac_sw_core_poe_utilization']?.state || '0';
+                  return `<div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">${poe}W PoE • ${util}% utilized</div>`;
+                ]]]
+
+          # UNVR
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_9
+            name: UNVR
+            icon: mdi:video-box
+            show_state: true
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              service_data:
+                entity_id: input_select.noc_navigation_level
+                option: "device:unvr"
+            state:
+              - value: "on"
+                styles:
+                  card:
+                    - background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(67, 160, 71, 0.1))
+                    - border-left: 4px solid #4caf50
+              - value: "off"
+                styles:
+                  card:
+                    - background: rgba(30, 30, 30, 0.4)
+                    - border-left: 4px solid rgba(255, 255, 255, 0.2)
+            custom_fields:
+              power: |
+                [[[ 
+                  const power = states['sensor.zz_pwr_pdu_outlet_9_outlet_power']?.state || '0';
+                  return `<div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">${power}W</div>`;
+                ]]]
+
+      # PoE Usage Chart
+      - type: custom:apexcharts-card
+        header:
+          title: "PoE Power Usage - Last 24 Hours"
+        graph_span: 24h
+        series:
+          - entity: sensor.ac_sw_core_poe_used
+            name: Core Switch
+            color: "#4caf50"
+          - entity: sensor.aa_gw_udmp_se_poe_used
+            name: Gateway
+            color: "#2196f3"
+          - entity: sensor.ai_sw_livingroom_poe_4_poe_used
+            name: Living Room
+            color: "#ff9800"
+
+  # SECTION: Power Management
+  - title: Power Management
+    path: power
+    icon: mdi:flash
+    visible:
+      - condition: state
+        entity: input_select.noc_navigation_level
+        state: "section:power"
+    cards:
+      # Back Button
+      - type: custom:button-card
+        name: "← Back to Overview"
+        icon: mdi:arrow-left
+        tap_action:
+          action: call-service
+          service: input_select.select_option
+          service_data:
+            entity_id: input_select.noc_navigation_level
+            option: "overview"
+
+      # PDU Outlet Grid
+      - type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, 1fr)
+          gap: 12px
+        cards:
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_6
+            name: "6: UAG"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_6_outlet_power'].state + 'W'; ]]]
+
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_7
+            name: "7: CORE"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_7_outlet_power'].state + 'W'; ]]]
+
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_9
+            name: "9: UNVR"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_9_outlet_power'].state + 'W'; ]]]
+
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_10
+            name: "10: NAS"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_10_outlet_power'].state + 'W'; ]]]
+
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_11
+            name: "11: ISP"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_11_outlet_power'].state + 'W'; ]]]
+
+          - type: custom:button-card
+            entity: switch.zz_pwr_pdu_outlet_12
+            name: "12: UDMP-SE"
+            show_state: true
+            tap_action:
+              action: toggle
+            custom_fields:
+              power: |
+                [[[ return states['sensor.zz_pwr_pdu_outlet_12_outlet_power'].state + 'W'; ]]]
+
+      # Power History
+      - type: custom:apexcharts-card
+        header:
+          title: "Total Power Draw - Last 24 Hours"
+        graph_span: 24h
+        series:
+          - entity: sensor.total_power_consumption
+            name: Total Power
+            type: area
+            color: "#ffc107"
+            opacity: 0.3
+            stroke_width: 3
+
+      # Cost Breakdown
+      - type: custom:apexcharts-card
+        header:
+          title: "Energy Cost Breakdown - This Month"
+        chart_type: donut
+        series:
+          - entity: sensor.bambu_lab_cost_this_month
+            name: Bambu Lab
+            color: "#2196f3"
+          - entity: sensor.estimated_power_cost
+            name: Infrastructure
+            color: "#ff9800"
+

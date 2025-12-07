@@ -1,0 +1,35 @@
+# /config/packages/espresense.yaml
+
+# 1) Read the exact /office topic and expose distance (rock-solid fallback)
+sensor:
+  - platform: mqtt
+    name: sami_bt_distance_office
+    state_topic: "espresense/devices/phone:sami-iphone-bt/office"
+    unit_of_measurement: "m"
+    value_template: "{{ value_json.distance | float(99) }}"
+    expire_after: 30
+    unique_id: esp_sami_bt_distance_office
+
+  # 2) Multi-room: mqtt_room (state becomes the room name like 'office')
+  - platform: mqtt_room
+    name: "sami_iphone_bt"              # -> sensor.sami_iphone_bt
+    device_id: "phone:sami-iphone-bt"   # must match the MQTT id exactly
+    state_topic: "espresense/devices"   # base only (NO wildcard)
+    timeout: 30
+    away_timeout: 180
+    unique_id: esp_sami_iphone_bt_room
+
+# 3) Presence binary_sensors
+template:
+  - binary_sensor:
+      - name: "Sami in Office (BLE)"
+        unique_id: esp_sami_in_office_ble_dist
+        device_class: occupancy
+        state: "{{ (states('sensor.sami_bt_distance_office') | float(99)) <= 6 }}"
+        delay_off:
+          minutes: 3
+
+      - name: "Sami home (BLE)"
+        unique_id: esp_sami_home_ble_room
+        device_class: presence
+        state: "{{ states('sensor.sami_iphone_bt') not in ['not_home','unknown','unavailable',''] }}"

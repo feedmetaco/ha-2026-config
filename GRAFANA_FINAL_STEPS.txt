@@ -1,0 +1,85 @@
+================================================================================
+  GRAFANA DASHBOARDS - READY TO IMPORT
+  All created by Master Agent + Agent 4
+================================================================================
+
+GOOD NEWS: Dashboards are ready!
+BAD NEWS: Can't auto-import due to Grafana Ingress auth
+
+SIMPLE SOLUTION: 3-click import (30 seconds each dashboard)
+
+================================================================================
+  IMPORT YOUR FIRST DASHBOARD (30 seconds)
+================================================================================
+
+In Grafana (already open in your browser):
+
+1. Click the PLUS ICON (+) on the left sidebar
+2. Click "Import"
+3. Click "Upload JSON file"
+4. Browse to: C:\Users\Sami\Documents\ha-config\grafana_dashboards_simple\welcome_dashboard.json
+5. Click "Load"
+6. Click "Import"
+
+DONE! You'll see your welcome dashboard!
+
+================================================================================
+  YOUR 5 READY-TO-IMPORT DASHBOARDS
+================================================================================
+
+Location: C:\Users\Sami\Documents\ha-config\grafana_dashboards\
+
+1. welcome_dashboard.json (grafana_dashboards_simple folder)
+   - Works immediately, no data source needed
+   - Shows your HA stats
+   - Good test to confirm import works
+
+2. noc_overview.json
+   - Main overview of 2,479 entities
+   - Requires HA database data source
+
+3. sensor_analytics.json  
+   - Analysis of your 968 sensors
+   - Requires HA database data source
+
+4. network_power.json
+   - 449 switches + power monitoring
+   - Requires HA database data source
+
+5. security_monitoring.json
+   - 256 binary sensors + 29 cameras
+   - Requires HA database data source
+
+================================================================================
+  SOLVING THE INFLUXDB AUTH ISSUE
+================================================================================
+
+Option A: Use Password "welcome"
+   - In Grafana InfluxDB data source
+   - Password field: welcome
+   - Try "Save & test" again
+
+Option B: Skip InfluxDB, Use HA Database Instead
+   - Simpler, works immediately
+   - Your 968 sensors already in HA database
+   - I can reconfigure dashboards for this
+
+Option C: Let Me Help You
+   - Get Grafana API key from UI
+   - Give it to me
+   - I'll auto-deploy everything
+
+================================================================================
+  WHAT DO YOU WANT TO DO?
+================================================================================
+
+A) Try password "welcome" in InfluxDB data source (you're already there!)
+B) I'll reconfigure dashboards to use HA database instead (simpler!)
+C) You get API key, I auto-deploy everything
+
+Your choice? Just tell me A, B, or C and I'll handle it!
+
+================================================================================
+
+All files synced to: \\homeassistant.local\config\
+

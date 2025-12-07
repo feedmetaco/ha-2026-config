@@ -1,0 +1,20 @@
+template:
+  - sensor:
+      - name: "SnoPUD Meter SnoPUD Grid kWh Total"
+        unique_id: snopud_meter_grid_kwh_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        state: "{{ states('input_number.snopud_total_kwh') | float(0) }}"
+
+      - name: "SnoPUD Grid kWh Total Cost"
+        unique_id: snopud_meter_grid_kwh_total_cost
+        unit_of_measurement: "USD"
+        device_class: monetary
+        state_class: total
+        state: >-
+          {% set kwh = states('input_number.snopud_total_kwh') | float(0) %}
+          {% set rate = states('input_number.snopud_rate_per_kwh') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+

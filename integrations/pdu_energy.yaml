@@ -1,0 +1,78 @@
+# PDU Energy Integration Sensors
+# Converts PDU power (W) to energy (kWh) for Energy Dashboard tracking
+
+sensor:
+  # PDU Total AC Power Consumption
+  - platform: integration
+    source: sensor.zz_pwr_pdu_ac_power_consumption
+    name: PDU Total AC Energy
+    unique_id: pdu_total_ac_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  # Individual PDU Outlets (if needed separately)
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_5_outlet_power
+    name: PDU Outlet 5 Energy
+    unique_id: pdu_outlet_5_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_6_outlet_power
+    name: PDU Outlet 6 Energy
+    unique_id: pdu_outlet_6_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_7_outlet_power
+    name: PDU Outlet 7 Energy
+    unique_id: pdu_outlet_7_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_8_outlet_power
+    name: PDU Outlet 8 Energy
+    unique_id: pdu_outlet_8_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_9_outlet_power
+    name: PDU Outlet 9 Energy
+    unique_id: pdu_outlet_9_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_10_outlet_power
+    name: PDU Outlet 10 Energy
+    unique_id: pdu_outlet_10_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_11_outlet_power
+    name: PDU Outlet 11 Energy
+    unique_id: pdu_outlet_11_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+    
+  - platform: integration
+    source: sensor.zz_pwr_pdu_outlet_12_outlet_power
+    name: PDU Outlet 12 Energy
+    unique_id: pdu_outlet_12_energy
+    unit_prefix: k
+    round: 3
+    method: trapezoidal
+

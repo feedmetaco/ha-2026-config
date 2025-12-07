@@ -1,0 +1,33 @@
+{
+  "coordination_lock": {
+    "locked_by": null,
+    "locked_at": null,
+    "lock_reason": null,
+    "expected_completion": null
+  },
+  "active_agents": {
+    "master_agent": {
+      "tab": "main",
+      "status": "idle",
+      "last_action": "multi-agent coordination complete",
+      "last_update": "2025-12-06T20:49:00"
+    }
+  },
+  "pending_actions": {
+    "ha_restart": {
+      "requested_by": null,
+      "scheduled": false,
+      "reason": null
+    },
+    "config_changes": {
+      "in_progress": false,
+      "agent": null
+    }
+  },
+  "instructions": {
+    "before_ha_restart": "Check this file - if another agent has lock, coordinate first",
+    "before_config_edit": "Acquire lock by setting your agent name in locked_by",
+    "after_action": "Release lock by setting locked_by to null"
+  }
+}
+

@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "has_mean": false,
+    "has_sum": true,
+    "name": "SnoPUD Grid kWh Total",
+    "source": "import",
+    "statistic_id": "sensor.snopud_meter_snopud_grid_kwh_total",
+    "unit_of_measurement": "kWh"
+  },
+  "stats": [
+    { "start": "2024-01-01T00:00:00+00:00", "state": 1.0, "sum": 1.0 }
+  ]
+}
