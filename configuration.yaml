@@ -11,7 +11,6 @@ script: !include scripts.yaml
 script split: !include_dir_merge_named scripts/
 scene: !include scenes.yaml
 
-
 # Enable native streaming pipeline for cameras
 stream:
 
@@ -73,7 +72,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.aa_gw_udmp_se_poe_used
     name: AA_GW_UDMP_SE PoE Energy
@@ -81,7 +80,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.ad_sw_flex_2_5_desk_poe_used
     name: AD_SW_FLEX_2_5_DESK PoE Energy
@@ -89,7 +88,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.ae_sw_officeprinter_poe_4_poe_used
     name: AE_SW_OFFICEPRINTER_POE_4 PoE Energy
@@ -97,7 +96,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.ai_sw_livingroom_poe_4_poe_used
     name: AI_SW_LIVINGROOM_POE_4 PoE Energy
@@ -105,7 +104,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.ak_backyard_switch_poe_used
     name: AK_BACKYARD_SWITCH PoE Energy
@@ -113,7 +112,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.usw_ultra_60w_poe_used
     name: USW_ULTRA_60W PoE Energy
@@ -130,7 +129,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_6_outlet_power
     name: PDU Outlet 6 Energy
@@ -138,7 +137,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_7_outlet_power
     name: PDU Outlet 7 Energy
@@ -146,7 +145,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_8_outlet_power
     name: PDU Outlet 8 Energy
@@ -154,7 +153,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_9_outlet_power
     name: PDU Outlet 9 Energy
@@ -162,7 +161,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_10_outlet_power
     name: PDU Outlet 10 Energy
@@ -170,7 +169,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_11_outlet_power
     name: PDU Outlet 11 Energy
@@ -178,7 +177,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.zz_pwr_pdu_outlet_12_outlet_power
     name: PDU Outlet 12 Energy
@@ -204,7 +203,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.water_heater_power_estimated
     name: Water Heater Energy (ESTIMATED)
@@ -212,7 +211,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.refrigerator_power_estimated
     name: Refrigerator Energy (ESTIMATED)
@@ -220,7 +219,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.washer_dryer_power_estimated
     name: Washer Dryer Energy (ESTIMATED)
@@ -228,7 +227,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.dishwasher_power_estimated
     name: Dishwasher Energy (ESTIMATED)
@@ -236,7 +235,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.oven_range_power_estimated
     name: Oven Range Energy (ESTIMATED)
@@ -244,7 +243,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.microwave_power_estimated
     name: Microwave Energy (ESTIMATED)
@@ -252,7 +251,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.phantom_loads_power_estimated
     name: Phantom Loads Energy (ESTIMATED)
@@ -260,7 +259,7 @@ sensor:
     unit_prefix: k
     round: 3
     method: trapezoidal
-    
+
   - platform: integration
     source: sensor.total_estimated_power
     name: Total Estimated Energy (ESTIMATED)
@@ -269,8 +268,9 @@ sensor:
     round: 3
     method: trapezoidal
 
-# Sensors (file + history + command_line)
-sensor:
+  # Sensors (file + history + command_line)
+  # Merged sensors from below
+
   - platform: file
     file_path: /var/log/bootcheck.log
     name: Pi Boot Health
@@ -298,7 +298,7 @@ sensor:
     unique_id: dns_cloudflare_response_ms
     command: 'ping -c 1 -W 2 1.1.1.1 2>/dev/null | grep "time=" | cut -d"=" -f4 | cut -d" " -f1 || echo "999"'
     unit_of_measurement: "ms"
-    scan_interval: 300  # Test every 5 minutes
+    scan_interval: 300 # Test every 5 minutes
     value_template: >
       {% set result = value | float(999) %}
       {{ result if result < 999 else None }}
@@ -450,7 +450,7 @@ utility_meter:
     source: input_number.snopud_total_kwh
     cycle: monthly
     offset: { days: 11 }
-  
+
   # Estimated device energy meters (for proper integration)
   # These integrate estimated power sensors to create energy sensors
   hvac_estimated_monthly:
@@ -498,7 +498,6 @@ recorder:
       - camera
       - ring
       - update
-
 
 # ============================================================================
 # INFLUXDB INTEGRATION - Master Agent Auto-Configuration
