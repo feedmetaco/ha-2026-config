@@ -552,3 +552,14 @@ influxdb:
       - sensor.last_boot
       - binary_sensor.*_updating
 # ============================================================================
+
+# Lovelace Dashboards
+lovelace:
+  mode: storage
+  dashboards:
+    lovelace-bambu:
+      mode: yaml
+      title: Bambu Printer
+      icon: mdi:printer-3d
+      show_in_sidebar: true
+      filename: dashboards/bambu_printer.yaml
